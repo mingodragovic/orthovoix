@@ -1,0 +1,59 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+@keyframes sparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-out infinite;
+}
+
+/* Prevent horizontal scroll on mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Ensure all content respects width */
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Fix for any elements that might cause overflow */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure container doesn't overflow on small screens */
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}

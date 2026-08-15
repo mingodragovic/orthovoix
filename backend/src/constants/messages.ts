@@ -1,0 +1,32 @@
+export const MESSAGES = {
+  // Success messages
+  LOGIN_SUCCESS: 'Login successful',
+  LOGOUT_SUCCESS: 'Logout successful',
+  REFRESH_SUCCESS: 'Tokens refreshed successfully',
+  REGISTER_SUCCESS: 'User registered successfully',
+  PROFILE_SUCCESS: 'Profile retrieved successfully',
+  FORGOT_PASSWORD_SUCCESS: 'Password reset code sent to email',
+  RESET_PASSWORD_SUCCESS: 'Password reset successful',
+  USER_CREATED: 'User created successfully',
+  USER_UPDATED: 'User updated successfully',
+  USER_DELETED: 'User deleted successfully',
+  USERS_FETCHED: 'Users fetched successfully',
+  USER_FETCHED: 'User fetched successfully',
+
+  // Error messages
+  INVALID_CREDENTIALS: 'Invalid credentials',
+  ACCOUNT_DEACTIVATED: 'Account deactivated',
+  INVALID_REFRESH_TOKEN: 'Invalid refresh token',
+  REFRESH_TOKEN_EXPIRED: 'Refresh token expired',
+  INVALID_RESET_TOKEN: 'Invalid or expired reset token',
+  USER_NOT_FOUND: 'User not found',
+  EMAIL_ALREADY_EXISTS: 'Email already exists',
+  INVALID_EMAIL: 'Invalid email format',
+  WEAK_PASSWORD: 'Password must be at least 8 characters with 1 number, 1 uppercase, and 1 lowercase letter',
+  UNAUTHORIZED: 'Unauthorized access',
+  FORBIDDEN: 'Forbidden access',
+  TOKEN_EXPIRED: 'Token expired',
+  TOKEN_INVALID: 'Invalid token',
+  VALIDATION_FAILED: 'Validation failed',
+  INTERNAL_ERROR: 'Internal server error',
+};

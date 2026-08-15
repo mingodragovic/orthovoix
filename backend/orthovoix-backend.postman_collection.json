@@ -1,0 +1,2354 @@
+{
+  "info": {
+    "name": "Orthovoix Backend API",
+    "description": "Authentication, User Management, and Storage API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dr.sarah@ortho.fr\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"david.martin@email.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Parent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.parent@email.com\",\n  \"password\": \"Password123\",\n  \"name\": \"New Parent\",\n  \"role\": \"parent\",\n  \"childName\": \"New Child\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users (Admin only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID (Admin only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "item": [
+        {
+          "name": "Upload Single File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/upload?folder=uploads",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "upload"],
+              "query": [
+                {
+                  "key": "folder",
+                  "value": "uploads",
+                  "description": "Optional folder name (default: uploads)"
+                }
+              ]
+            },
+            "description": "Upload a single file. Supported formats: images, documents, audio, video"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Multiple Files",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storage/upload-multiple?folder=uploads",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "upload-multiple"],
+              "query": [
+                {
+                  "key": "folder",
+                  "value": "uploads",
+                  "description": "Optional folder name (default: uploads)"
+                }
+              ]
+            },
+            "description": "Upload multiple files (max 10). Select multiple files when choosing the file."
+          },
+          "response": []
+        },
+        {
+          "name": "List Files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storage/list?prefix=",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "list"],
+              "query": [
+                {
+                  "key": "prefix",
+                  "value": "",
+                  "description": "Optional prefix to filter files (e.g., 'uploads/')"
+                }
+              ]
+            },
+            "description": "List all files in the bucket. Use prefix to filter by folder."
+          },
+          "response": []
+        },
+        {
+          "name": "Get File URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storage/url/{{fileKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "url", "{{fileKey}}"]
+            },
+            "description": "Get a presigned URL for a file (valid for 1 hour). Use the file key from upload response."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storage/{{fileKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "{{fileKey}}"]
+            },
+            "description": "Delete a file permanently. Use the file key from upload response."
+          },
+          "response": []
+        },
+        {
+          "name": "Get File Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storage/metadata/{{fileKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["storage", "metadata", "{{fileKey}}"]
+            },
+            "description": "Get metadata for a file (size, last modified, etag)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+  "name": "Patients",
+  "item": [
+    {
+      "name": "Create Patient",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Emma\",\n  \"lastName\": \"Martin\",\n  \"dateOfBirth\": \"2018-05-15\",\n  \"gender\": \"female\",\n  \"parentId\": \"{{parentId}}\",\n  \"orthophonisteId\": \"{{orthophonisteId}}\",\n  \"diagnosis\": \"Speech delay\",\n  \"therapyGoals\": [\"Improve pronunciation\", \"Expand vocabulary\"],\n  \"therapyFrequency\": \"2x per week\",\n  \"therapyDuration\": 6,\n  \"emergencyContact\": {\n    \"name\": \"David Martin\",\n    \"relationship\": \"Father\",\n    \"phone\": \"+1234567890\"\n  },\n  \"status\": \"active\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patients",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients"]
+        }
+      }
+    },
+    {
+      "name": "Get All Patients (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get My Patients (Orthophoniste)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/my-patients",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "my-patients"]
+        }
+      }
+    },
+    {
+      "name": "Get My Child (Parent)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/my-child",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "my-child"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/{{patientId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "{{patientId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Patient",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"diagnosis\": \"Speech delay - Moderate\",\n  \"therapyGoals\": [\"Improve pronunciation\", \"Expand vocabulary\", \"Improve social communication\"],\n  \"status\": \"active\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patients/{{patientId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "{{patientId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Patient",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/{{patientId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "{{patientId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Exercises",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/{{patientId}}/exercises",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "{{patientId}}", "exercises"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Progress",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patients/{{patientId}}/progress",
+          "host": ["{{baseUrl}}"],
+          "path": ["patients", "{{patientId}}", "progress"]
+        }
+      }
+    }
+  ]
+},
+{
+  "name": "Exercises",
+  "item": [
+    {
+      "name": "Create Exercise (JSON)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Pronunciation Practice - /r/ Sound\",\n  \"description\": \"Practice the /r/ sound with these tongue twisters and exercises\",\n  \"category\": \"pronunciation\",\n  \"difficulty\": \"intermediate\",\n  \"instructions\": \"Repeat each word 5 times: red, run, rest, round, right. Then try the tongue twister: \\\"Round the rugged rock the ragged rascal ran.\\\"\",\n  \"materials\": [\"Flashcards\", \"Audio recording device\"],\n  \"duration\": 15,\n  \"tags\": [\"pronunciation\", \"r-sound\", \"tongue-twisters\"],\n  \"coverImageKey\": \"exercises/covers/cover-image.jpg\",\n  \"videoKey\": \"exercises/videos/demo-video.mp4\",\n  \"slides\": [\n    {\n      \"imageKey\": \"exercises/images/slide1-image.jpg\",\n      \"audioKey\": \"exercises/audio/slide1-audio.mp3\",\n      \"order\": 0\n    },\n    {\n      \"imageKey\": \"exercises/images/slide2-image.jpg\",\n      \"audioKey\": \"exercises/audio/slide2-audio.mp3\",\n      \"order\": 1\n    }\n  ],\n  \"isActive\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/exercises",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Exercise with Media Upload (Multipart)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "title",
+              "value": "Pronunciation Practice with Slides",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Practice pronunciation with visual and audio aids",
+              "type": "text"
+            },
+            {
+              "key": "category",
+              "value": "pronunciation",
+              "type": "text"
+            },
+            {
+              "key": "difficulty",
+              "value": "intermediate",
+              "type": "text"
+            },
+            {
+              "key": "instructions",
+              "value": "Look at each image, listen to the audio, repeat the word",
+              "type": "text"
+            },
+            {
+              "key": "duration",
+              "value": "15",
+              "type": "text"
+            },
+            {
+              "key": "tags",
+              "value": "[\"pronunciation\", \"r-sound\"]",
+              "type": "text"
+            },
+            {
+              "key": "materials",
+              "value": "[\"Flashcards\", \"Audio recorder\"]",
+              "type": "text"
+            },
+            {
+              "key": "coverImageIndex",
+              "value": "0",
+              "type": "text",
+              "description": "Index of the cover image in the files array"
+            },
+            {
+              "key": "videoIndex",
+              "value": "5",
+              "type": "text",
+              "description": "Index of the video file in the files array"
+            },
+            {
+              "key": "slides",
+              "value": "[{\"imageIndex\":1,\"audioIndex\":2,\"order\":0},{\"imageIndex\":3,\"audioIndex\":4,\"order\":1}]",
+              "type": "text"
+            },
+            {
+              "key": "isActive",
+              "value": "true",
+              "type": "text"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "cover.jpg",
+              "description": "Cover image (index 0)"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "image1.jpg",
+              "description": "Slide 1 image (index 1)"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "audio1.mp3",
+              "description": "Slide 1 audio (index 2)"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "image2.jpg",
+              "description": "Slide 2 image (index 3)"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "audio2.mp3",
+              "description": "Slide 2 audio (index 4)"
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": "demo.mp4",
+              "description": "Video file (index 5)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/exercises/with-media",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "with-media"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Exercises",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises?page=1&limit=10&isActive=true",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "isActive",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Exercises by Category",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises?category=pronunciation&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises"],
+          "query": [
+            {
+              "key": "category",
+              "value": "pronunciation"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Exercises by Difficulty",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises?difficulty=beginner&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises"],
+          "query": [
+            {
+              "key": "difficulty",
+              "value": "beginner"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Exercise Categories",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises/categories",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "categories"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Exercises",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises/search?q=pronunciation&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "pronunciation"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Exercise by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises/{{exerciseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "{{exerciseId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Exercise",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Pronunciation Practice - /r/ Sound - Advanced\",\n  \"difficulty\": \"advanced\",\n  \"duration\": 20,\n  \"coverImageKey\": \"exercises/covers/new-cover-image.jpg\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/exercises/{{exerciseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "{{exerciseId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Exercise (Soft Delete)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/exercises/{{exerciseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["exercises", "{{exerciseId}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "exerciseId",
+      "value": ""
+    }
+  ]
+},
+{
+  "name": "Patient-Exercises",
+  "item": [
+    {
+      "name": "Assign Exercise to Patient",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"exerciseId\": \"{{exerciseId}}\",\n  \"dueDate\": \"2024-12-31T23:59:59.000Z\",\n  \"priority\": \"high\",\n  \"notes\": \"Complete this exercise before the next session\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/assign",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "assign"]
+        }
+      }
+    },
+    
+    {
+      "name": "Get Patient Exercises",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/patient/{{patientId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "patient", "{{patientId}}"]
+        }
+      }
+    },
+    {
+  "name": "Get All Assignments",
+  "request": {
+    "method": "GET",
+    "header": [
+      {
+        "key": "Authorization",
+        "value": "Bearer {{accessToken}}"
+      }
+    ],
+    "url": {
+      "raw": "{{baseUrl}}/patient-exercises?page=1&limit=10",
+      "host": ["{{baseUrl}}"],
+      "path": ["patient-exercises"],
+      "query": [
+        {
+          "key": "page",
+          "value": "1"
+        },
+        {
+          "key": "limit",
+          "value": "10"
+        },
+        {
+          "key": "status",
+          "value": "",
+          "description": "Optional: assigned, in-progress, completed, overdue, cancelled"
+        },
+        {
+          "key": "patientId",
+          "value": "",
+          "description": "Optional: Filter by patient ID"
+        },
+        {
+          "key": "exerciseId",
+          "value": "",
+          "description": "Optional: Filter by exercise ID"
+        }
+      ]
+    }
+  }
+},
+    {
+      "name": "Get Patient Progress Summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/patient/{{patientId}}/progress",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "patient", "{{patientId}}", "progress"]
+        }
+      }
+    },
+    {
+      "name": "Get Assignment Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/{{assignmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "{{assignmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"in-progress\",\n  \"notes\": \"Started working on the exercise\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/{{assignmentId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "{{assignmentId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "Update Progress",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"performance\": {\n    \"score\": 85,\n    \"timeTaken\": 15,\n    \"attempts\": 3,\n    \"feedback\": \"Good progress, keep practicing\"\n  },\n  \"progressLog\": {\n    \"notes\": \"Completed with 85% accuracy\",\n    \"score\": 85\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/patient-exercises/{{assignmentId}}/progress",
+          "host": ["{{baseUrl}}"],
+          "path": ["patient-exercises", "{{assignmentId}}", "progress"]
+        }
+      }
+    }
+  ]
+},
+{
+  "name": "Progress",
+  "item": [
+    {
+      "name": "Record Progress",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recordDate\": \"2024-01-15T00:00:00.000Z\",\n  \"type\": \"overall\",\n  \"scores\": {\n    \"pronunciationScore\": 85,\n    \"vocabularyScore\": 90,\n    \"grammarScore\": 75,\n    \"comprehensionScore\": 80,\n    \"fluencyScore\": 70,\n    \"overallScore\": 80\n  },\n  \"notes\": \"Patient showed significant improvement in pronunciation\",\n  \"strengths\": [\"Good articulation\", \"Strong vocabulary\"],\n  \"areasForImprovement\": [\"Grammar needs work\", \"Fluency needs practice\"],\n  \"nextGoals\": [\n    {\n      \"description\": \"Improve pronunciation of /r/ sound\",\n      \"status\": \"in-progress\",\n      \"targetDate\": \"2024-12-31T23:59:59.000Z\"\n    }\n  ],\n  \"therapyPlanAdjustments\": \"Increase therapy sessions to 3x per week\",\n  \"recommendedFrequency\": \"3x per week\",\n  \"therapyDuration\": 6\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/progress/patient/{{patientId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "patient", "{{patientId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Progress",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/progress/patient/{{patientId}}?limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "patient", "{{patientId}}"],
+          "query": [
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Progress Summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/progress/patient/{{patientId}}/summary",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "patient", "{{patientId}}", "summary"]
+        }
+      }
+    },
+    {
+      "name": "Get Chart Data",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/progress/patient/{{patientId}}/chart",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "patient", "{{patientId}}", "chart"]
+        }
+      }
+    },
+    {
+      "name": "Get Progress Record by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/progress/{{progressId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "{{progressId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Progress Record",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": \"Updated: Patient showed even more improvement\",\n  \"scores\": {\n    \"pronunciationScore\": 90,\n    \"overallScore\": 85\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/progress/{{progressId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "{{progressId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Progress Record",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/progress/{{progressId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["progress", "{{progressId}}"]
+        }
+      }
+    }
+  ]
+},
+{
+  "name": "Appointments",
+  "item": [
+    {
+      "name": "Create Appointment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"dateTime\": \"2024-01-15T10:00:00.000Z\",\n  \"duration\": 30,\n  \"type\": \"therapy-session\",\n  \"location\": \"Clinic Room 101\",\n  \"isVirtual\": false,\n  \"notes\": \"Focus on pronunciation practice\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/appointments",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments"]
+        }
+      }
+    },
+    {
+      "name": "Get All Appointments (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/appointments?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get My Appointments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/my?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "my"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Appointments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/patient/{{patientId}}?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "patient", "{{patientId}}"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Appointment by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "{{appointmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Appointment",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"completed\",\n  \"notes\": \"Session completed successfully\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "{{appointmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "Add Session Notes",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": \"Patient showed excellent progress on pronunciation\",\n  \"duration\": 25,\n  \"topics\": [\"Pronunciation\", \"/r/ sound practice\"],\n  \"progress\": \"Patient can now pronounce /r/ sound correctly 85% of the time\",\n  \"nextSteps\": \"Continue practice, introduce /s/ sound\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/appointments/{{appointmentId}}/notes",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "{{appointmentId}}", "notes"]
+        }
+      }
+    },
+    {
+      "name": "Cancel/Delete Appointment",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["appointments", "{{appointmentId}}"]
+        }
+      }
+    }
+  ]
+},
+{
+  "name": "Notifications",
+  "item": [
+    {
+      "name": "Create Notification",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"type\": \"system\",\n  \"title\": \"Welcome to Orthovoix!\",\n  \"message\": \"Welcome to the Orthovoix speech therapy platform. We're glad to have you!\",\n  \"actionUrl\": \"/dashboard\",\n  \"metadata\": {\n    \"welcome\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/notifications",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications"]
+        }
+      }
+    },
+    {
+      "name": "Get My Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Unread Count",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/unread-count",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications", "unread-count"]
+        }
+      }
+    },
+    {
+      "name": "Get Notification by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications", "{{notificationId}}"]
+        }
+      }
+    },
+    {
+      "name": "Mark as Read",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications", "{{notificationId}}", "read"]
+        }
+      }
+    },
+    {
+      "name": "Mark All as Read",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/read-all",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications", "read-all"]
+        }
+      }
+    },
+    {
+      "name": "Delete Notification",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications", "{{notificationId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete All Notifications",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/notifications",
+          "host": ["{{baseUrl}}"],
+          "path": ["notifications"]
+        }
+      }
+    }
+  ]
+},
+{
+  "name": "Profile with Avatar Upload",
+  "item": [
+    {
+      "name": "1. Upload Avatar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/storage/upload?folder=avatars/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["storage", "upload"],
+          "query": [
+            {
+              "key": "folder",
+              "value": "avatars/{{userId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Update Profile with Avatar URL",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Dr. Sarah Johnson\",\n  \"email\": \"dr.sarah@ortho.fr\",\n  \"specialization\": \"Orthophonie Pédiatrique - Expert\",\n  \"licenseNumber\": \"67890\",\n  \"avatar\": \"{{avatarUrl}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["profile"]
+        }
+      }
+    },
+    {
+      "name": "3. Remove Avatar",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/profile/avatar",
+          "host": ["{{baseUrl}}"],
+          "path": ["profile", "avatar"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "4186f57d-d61c-46a9-97f7-a99ae7986c9b"
+    },
+    {
+      "key": "avatarUrl",
+      "value": "",
+      "description": "Copy from upload response"
+    }
+  ]
+},
+{
+  "name": "Dashboard",
+  "item": [
+    {
+      "name": "Admin Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/dashboard/admin",
+          "host": ["{{baseUrl}}"],
+          "path": ["dashboard", "admin"]
+        }
+      },
+      "response": [
+        {
+          "name": "Admin Dashboard Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "admin"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Admin dashboard data retrieved successfully\",\n  \"data\": {\n    \"stats\": {\n      \"totalPatients\": 45,\n      \"activePatients\": 32,\n      \"inactivePatients\": 8,\n      \"dischargedPatients\": 5,\n      \"totalExercises\": 12,\n      \"totalAssignments\": 38,\n      \"completedAssignments\": 15,\n      \"inProgressAssignments\": 12,\n      \"overdueAssignments\": 6,\n      \"upcomingAppointments\": 5,\n      \"averageCompletionRate\": 75\n    },\n    \"recentActivity\": [\n      {\n        \"date\": \"2024-01-15T10:00:00.000Z\",\n        \"patientName\": \"Emma Martin\",\n        \"action\": \"progress_update\",\n        \"description\": \"Completed pronunciation exercise with 85% accuracy\",\n        \"patientId\": \"fba6f68f-f4ed-4f1a-895e-c916273e5066\"\n      }\n    ],\n    \"patientGrowth\": [\n      { \"month\": \"Aug 2023\", \"newPatients\": 3, \"totalPatients\": 20 },\n      { \"month\": \"Sep 2023\", \"newPatients\": 5, \"totalPatients\": 25 },\n      { \"month\": \"Oct 2023\", \"newPatients\": 4, \"totalPatients\": 29 },\n      { \"month\": \"Nov 2023\", \"newPatients\": 6, \"totalPatients\": 35 },\n      { \"month\": \"Dec 2023\", \"newPatients\": 3, \"totalPatients\": 38 },\n      { \"month\": \"Jan 2024\", \"newPatients\": 7, \"totalPatients\": 45 }\n    ],\n    \"categoryDistribution\": [\n      { \"category\": \"pronunciation\", \"count\": 8, \"color\": \"#4CAF50\" },\n      { \"category\": \"vocabulary\", \"count\": 6, \"color\": \"#2196F3\" },\n      { \"category\": \"grammar\", \"count\": 5, \"color\": \"#FF9800\" },\n      { \"category\": \"comprehension\", \"count\": 4, \"color\": \"#9C27B0\" }\n    ],\n    \"weeklyCompletionRate\": 85,\n    \"patientSatisfaction\": 92\n  },\n  \"timestamp\": \"2024-01-15T10:00:00.000Z\",\n  \"path\": \"/api/dashboard/admin\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Parent Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/dashboard/parent",
+          "host": ["{{baseUrl}}"],
+          "path": ["dashboard", "parent"]
+        }
+      },
+      "response": [
+        {
+          "name": "Parent Dashboard Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/parent",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "parent"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"statusCode\": 200,\n  \"message\": \"Parent dashboard data retrieved successfully\",\n  \"data\": {\n    \"child\": {\n      \"id\": \"fba6f68f-f4ed-4f1a-895e-c916273e5066\",\n      \"firstName\": \"Emma\",\n      \"lastName\": \"Martin\",\n      \"age\": 8,\n      \"status\": \"active\",\n      \"avatar\": null\n    },\n    \"stats\": {\n      \"totalExercises\": 10,\n      \"completedExercises\": 5,\n      \"inProgressExercises\": 3,\n      \"overdueExercises\": 2,\n      \"completionRate\": 50,\n      \"averageScore\": 75,\n      \"latestScore\": 85,\n      \"upcomingAppointments\": 3\n    },\n    \"progressTrend\": [\n      { \"date\": \"Jan 01\", \"score\": 60, \"category\": \"overall\" },\n      { \"date\": \"Jan 08\", \"score\": 70, \"category\": \"overall\" },\n      { \"date\": \"Jan 15\", \"score\": 85, \"category\": \"overall\" }\n    ],\n    \"recentExercises\": [\n      {\n        \"id\": \"assign-123\",\n        \"title\": \"Pronunciation Practice with Audio\",\n        \"status\": \"in-progress\",\n        \"score\": 75,\n        \"dueDate\": \"2024-12-31T23:59:59.000Z\"\n      }\n    ],\n    \"upcomingAppointments\": [\n      {\n        \"id\": \"app-123\",\n        \"dateTime\": \"2024-01-20T10:00:00.000Z\",\n        \"location\": \"Clinic Room 101\",\n        \"isVirtual\": false,\n        \"type\": \"therapy-session\"\n      }\n    ],\n    \"recentNotifications\": [\n      {\n        \"id\": \"notif-123\",\n        \"title\": \"Appointment Reminder\",\n        \"message\": \"Emma has an appointment tomorrow at 10:00 AM\",\n        \"createdAt\": \"2024-01-19T10:00:00.000Z\",\n        \"read\": false,\n        \"actionUrl\": \"/appointments/app-123\"\n      }\n    ],\n    \"unreadNotifications\": 3\n  },\n  \"timestamp\": \"2024-01-15T10:00:00.000Z\",\n  \"path\": \"/api/dashboard/parent\"\n}"
+        }
+      ]
+    }
+  ]
+},
+{
+  "name": "Recordings",
+  "item": [
+    {
+      "name": "Upload Recording",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            },
+            {
+              "key": "patientId",
+              "value": "{{patientId}}",
+              "type": "text"
+            },
+            {
+              "key": "exerciseId",
+              "value": "{{exerciseId}}",
+              "type": "text"
+            },
+            {
+              "key": "assignmentId",
+              "value": "{{assignmentId}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/storage/upload/recording",
+          "host": ["{{baseUrl}}"],
+          "path": ["storage", "upload", "recording"]
+        }
+      }
+    },
+    {
+  "name": "Get All Recordings",
+  "request": {
+    "method": "GET",
+    "header": [
+      {
+        "key": "Authorization",
+        "value": "Bearer {{accessToken}}"
+      }
+    ],
+    "url": {
+      "raw": "{{baseUrl}}/recordings/all?page=1&limit=10",
+      "host": ["{{baseUrl}}"],
+      "path": ["recordings", "all"],
+      "query": [
+        {
+          "key": "page",
+          "value": "1"
+        },
+        {
+          "key": "limit",
+          "value": "10"
+        },
+        {
+          "key": "status",
+          "value": "",
+          "description": "Optional: pending, reviewed, needs-improvement, great"
+        },
+        {
+          "key": "patientId",
+          "value": "",
+          "description": "Optional: Filter by patient ID"
+        },
+        {
+          "key": "exerciseId",
+          "value": "",
+          "description": "Optional: Filter by exercise ID"
+        }
+      ]
+    }
+  }
+},
+    {
+      "name": "Create Recording Metadata",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recordingUrl\": \"{{recordingUrl}}\",\n  \"recordingKey\": \"{{recordingKey}}\",\n  \"duration\": 3.5,\n  \"notes\": \"First attempt, needs more practice\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/recordings/patient-exercises/{{assignmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "patient-exercises", "{{assignmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Assignment Recordings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/recordings/patient-exercises/{{assignmentId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "patient-exercises", "{{assignmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Patient Recordings (Orthophoniste)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/recordings/patient/{{patientId}}?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "patient", "{{patientId}}"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Recording by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/recordings/{{recordingId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "{{recordingId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Fresh Recording URL",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/recordings/{{recordingId}}/url",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "{{recordingId}}", "url"]
+        }
+      }
+    },
+    {
+      "name": "Review Recording (Orthophoniste)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"reviewed\",\n  \"feedback\": \"Great effort! Try to make the /r/ sound softer.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/recordings/{{recordingId}}/review",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "{{recordingId}}", "review"]
+        }
+      }
+    },
+    {
+      "name": "Delete Recording",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/recordings/{{recordingId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["recordings", "{{recordingId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "patientId",
+      "value": ""
+    },
+    {
+      "key": "exerciseId",
+      "value": ""
+    },
+    {
+      "key": "assignmentId",
+      "value": ""
+    },
+    {
+      "key": "recordingId",
+      "value": ""
+    },
+    {
+      "key": "recordingUrl",
+      "value": ""
+    },
+    {
+      "key": "recordingKey",
+      "value": ""
+    }
+  ]
+},
+{
+  "name": "Submissions",
+  "item": [
+    {
+      "name": "Create Submission",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patientExerciseId\": \"{{assignmentId}}\",\n  \"answers\": [\n    {\n      \"slideIndex\": 0,\n      \"recordedAudioKey\": \"recordings/patient123/exercise456/submission123/slide0.webm\",\n      \"duration\": 3.5,\n      \"notes\": \"First attempt\"\n    },\n    {\n      \"slideIndex\": 1,\n      \"recordedAudioKey\": \"recordings/patient123/exercise456/submission123/slide1.webm\",\n      \"duration\": 4.2,\n      \"notes\": \"Better attempt\"\n    }\n  ],\n  \"metadata\": {\n    \"deviceInfo\": \"Mozilla/5.0...\",\n    \"browserInfo\": \"Chrome 120\",\n    \"ipAddress\": \"192.168.1.1\"\n  },\n  \"notes\": \"Completed all exercises\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/submissions",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Submissions (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "status",
+              "value": "",
+              "description": "pending, reviewed, needs-improvement, approved, rejected"
+            },
+            {
+              "key": "patientId",
+              "value": "",
+              "description": "Filter by patient ID"
+            },
+            {
+              "key": "exerciseId",
+              "value": "",
+              "description": "Filter by exercise ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get My Submissions (Parent)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions/my?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "my"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Patient Submissions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions/patient/{{patientId}}?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "patient", "{{patientId}}"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Patient Submission Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions/patient/{{patientId}}/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "patient", "{{patientId}}", "stats"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Submission by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions/{{submissionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "{{submissionId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Submission Status (Admin)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"approved\",\n  \"reviewNotes\": \"Excellent work! The pronunciation is very clear.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/submissions/{{submissionId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "{{submissionId}}", "status"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Submission (Admin)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": \"Updated submission notes\",\n  \"reviewNotes\": \"Additional feedback\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/submissions/{{submissionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "{{submissionId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Submission (Admin)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/submissions/{{submissionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["submissions", "{{submissionId}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "patientId",
+      "value": ""
+    },
+    {
+      "key": "assignmentId",
+      "value": ""
+    },
+    {
+      "key": "submissionId",
+      "value": ""
+    }
+  ]
+}
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "fileKey",
+      "value": "",
+      "description": "The file key/path returned from upload (e.g., 'uploads/1234567890-abc123.jpg')"
+    }
+  ]
+}
