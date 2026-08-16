@@ -11,7 +11,7 @@ import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { ExerciseEditModal } from '../components/exercises/ExerciseEditModal';
 import { ExerciseCreateModal } from '../components/exercises/ExerciseCreateModal';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
-import { Pagination } from '../components/ui/Pagination';
+import { Pagination } from '../components/ui/pagination';
 
 export function ExerciseList() {
   const navigate = useNavigate();
