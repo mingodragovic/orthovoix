@@ -20,7 +20,8 @@ COPY package*.json ./
 COPY nest-cli.json ./
 COPY tsconfig*.json ./
 
-RUN npm ci --only=production
+# Install production dependencies AND tsconfig-paths
+RUN npm ci --only=production && npm install tsconfig-paths
 
 COPY --from=builder /app/dist ./dist
 
