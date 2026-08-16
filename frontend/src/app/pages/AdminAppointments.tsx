@@ -6,7 +6,7 @@ import { useAllAppointments, useDeleteAppointment } from '@/hooks/useAppointment
 import { Column, DataTable } from '@/app/components/ui/DataTable';
 import { Appointment, AppointmentStatus, AppointmentType } from '@/types/appointment.types';
 import { Breadcrumb } from '@/app/components/ui/Breadcrumb';
-import { Pagination } from '@/app/components/ui/Pagination';
+import { Pagination } from '@/app/components/ui/pagination';
 import { 
   Eye, 
   Plus, 

@@ -2,7 +2,7 @@
 import { useState, useMemo, ReactNode } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Pagination } from './Pagination';
+import { Pagination } from './pagination';
 
 export interface Column<T> {
   key: string;

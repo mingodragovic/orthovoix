@@ -13,7 +13,7 @@ import { PatientCreateModal } from '../components/patients/PatientCreateModal';
 import { PatientEditModal } from '../components/patients/PatientEditModal';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
-import { Pagination } from '../components/ui/Pagination';
+import { Pagination } from '../components/ui/pagination';
 
 export function PatientList() {
   const navigate = useNavigate();

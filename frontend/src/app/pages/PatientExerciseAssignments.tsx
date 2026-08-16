@@ -6,7 +6,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Column, DataTable } from '../components/ui/DataTable';
 import { PatientExercise, PatientExerciseStatus } from '@/types/patient-exercise.types';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
-import { Pagination } from '../components/ui/Pagination';
+import { Pagination } from '../components/ui/pagination';
 import { Eye, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr, enUS, arSA } from 'date-fns/locale';

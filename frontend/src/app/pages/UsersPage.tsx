@@ -13,7 +13,7 @@ import { Column, DataTable } from '../components/ui/DataTable';
 import { UserCreateModal } from '../components/users/UserCreateModal';
 import { UserEditModal } from '../components/users/UserEditModal';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
-import { Pagination } from '../components/ui/Pagination';
+import { Pagination } from '../components/ui/pagination';
 
 export function UsersPage() {
   const navigate = useNavigate();

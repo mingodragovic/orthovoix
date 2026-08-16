@@ -6,7 +6,7 @@ import { useAllSubmissions, useDeleteSubmission } from '@/hooks/useSubmissions';
 import { Column, DataTable } from '@/app/components/ui/DataTable';
 import { Submission, SubmissionStatus } from '@/types/submission.types';
 import { Breadcrumb } from '@/app/components/ui/Breadcrumb';
-import { Pagination } from '@/app/components/ui/Pagination';
+import { Pagination } from '@/app/components/ui/pagination';
 import { 
   Eye, 
   Trash2, 
