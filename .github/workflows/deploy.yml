@@ -13,15 +13,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Test SSH connection
+      - name: Create .env file
         run: |
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "echo 'SSH connection successful'"
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/opt/orthovoix/"
+          rm: true
+          strip_components: 0
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -30,18 +38,37 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /opt/orthovoix
+            cd /opt/orthovoix || exit 1
             
-            # Pull latest code (you need to have git clone first time)
-            # or use SCP to copy files
+            # Create .env file
+            cat > .env << EOF
+            DOMAIN=${{ secrets.DOMAIN }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOF
             
-            # Build and deploy
-            docker-compose down
-            docker-compose pull
-            docker-compose up -d --build
+            # Create frontend .env.production
+            cat > frontend/.env.production << EOF
+            VITE_API_URL=/api
+            VITE_APP_NAME=OrthoVoix
+            VITE_APP_VERSION=0.0.1
+            EOF
             
-            # Clean up old images
+            # Ensure SSL directory exists and copy certificates
+            mkdir -p ssl
+            if [ -f /etc/letsencrypt/live/ortho-voix.site/fullchain.pem ]; then
+              cp /etc/letsencrypt/live/ortho-voix.site/fullchain.pem ssl/
+              cp /etc/letsencrypt/live/ortho-voix.site/privkey.pem ssl/
+            fi
+            
+            # Deploy
+            docker compose down || true
+            docker compose pull || true
+            docker compose up -d --build
+            
+            # Clean up
             docker system prune -f
             
             echo "✅ Deployment complete!"
-            docker-compose ps
+            docker compose ps
