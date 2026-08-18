@@ -1,3 +1,4 @@
+// Add minio.publicUrl to the configuration
 import { Module, Global } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
@@ -23,6 +24,13 @@ import { StorageController } from './storage.controller';
           accessKey,
           secretKey,
         });
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: 'MINIO_PUBLIC_URL',
+      useFactory: (configService: ConfigService) => {
+        return configService.get<string>('minio.publicUrl');
       },
       inject: [ConfigService],
     },

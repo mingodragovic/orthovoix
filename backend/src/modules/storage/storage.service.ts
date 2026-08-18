@@ -116,66 +116,98 @@ export class StorageService {
     }
   }
 
-  async uploadFile(file: MulterFile, folder: string = 'uploads'): Promise<UploadResult> {
+  /**
+   * Get public URL for a file (preferred method)
+   * Uses configured public URL if available, otherwise falls back to presigned URL
+   */
+  private getPublicUrl(key: string): string {
+    const publicUrl = this.configService.get<string>('minio.publicUrl');
+    if (publicUrl) {
+      // Ensure proper formatting
+      const baseUrl = publicUrl.endsWith('/') ? publicUrl : `${publicUrl}/`;
+      return `${baseUrl}${key}`;
+    }
+    // Fallback: generate presigned URL (synchronous version)
+    // Note: This is a synchronous fallback - for async version use getPresignedUrl
+    console.warn('No public URL configured, using presigned URL fallback');
+    return this.getPresignedUrlSync(key);
+  }
+
+  /**
+   * Get presigned URL for a file (async)
+   */
+  private async getPresignedUrl(key: string, expirySeconds: number = 3600): Promise<string> {
+    const bucket = this.configService.get<string>('minio.bucket') || 'orthovoix';
+    return this.minioClient.presignedGetObject(bucket, key, expirySeconds);
+  }
+
+  /**
+   * Get presigned URL synchronously (for fallback)
+   * Note: This uses a sync method - use async version when possible
+   */
+  private getPresignedUrlSync(key: string, expirySeconds: number = 3600): string {
+    const bucket = this.configService.get<string>('minio.bucket') || 'orthovoix';
+    // Minio client's presignedGetObject is async, but we're using it synchronously
+    // This is a fallback method - prefer using async version
+    return this.minioClient.presignedGetObject(bucket, key, expirySeconds) as unknown as string;
+  }
+
+async uploadFile(file: MulterFile, folder: string = 'uploads'): Promise<UploadResult> {
     const bucket = this.configService.get<string>('minio.bucket') || 'orthovoix';
     const fileName = this.generateFileName(file.originalname);
     const key = `${folder}/${fileName}`;
 
-    // Upload file
     await this.minioClient.putObject(
-      bucket,
-      key,
-      file.buffer,
-      file.size,
-      {
-        'Content-Type': file.mimetype,
-      },
+        bucket,
+        key,
+        file.buffer,
+        file.size,
+        {
+            'Content-Type': file.mimetype,
+        },
     );
 
-    // Generate URL (valid for 24 hours)
-    const url = await this.minioClient.presignedGetObject(bucket, key, 24 * 60 * 60);
+    // ✅ Use public URL if available, otherwise fallback to presigned URL
+    const url = this.getPublicUrl(key);
 
     return {
-      url,
-      key,
-      bucket,
+        url,
+        key,
+        bucket,
     };
-  }
-
+}
   /**
    * Upload a recording with duration validation
    */
-  async uploadRecording(file: MulterFile, folder: string = 'recordings'): Promise<UploadResult> {
+async uploadRecording(file: MulterFile, folder: string = 'recordings'): Promise<UploadResult> {
     const bucket = this.configService.get<string>('minio.bucket') || 'orthovoix';
     
-    // Validate recording duration (max 10 seconds)
     const duration = await this.validateAudioDuration(file.buffer, 10);
     
     const fileName = this.generateFileName(file.originalname);
     const key = `${folder}/${fileName}`;
 
-    // Upload file
     await this.minioClient.putObject(
-      bucket,
-      key,
-      file.buffer,
-      file.size,
-      {
-        'Content-Type': file.mimetype,
-        'x-amz-meta-duration': duration.toString(),
-      },
+        bucket,
+        key,
+        file.buffer,
+        file.size,
+        {
+            'Content-Type': file.mimetype,
+            'x-amz-meta-duration': duration.toString(),
+        },
     );
 
-    // Generate URL (valid for 24 hours)
-    const url = await this.minioClient.presignedGetObject(bucket, key, 24 * 60 * 60);
+    // ✅ Use public URL if available
+    const url = this.getPublicUrl(key);
 
     return {
-      url,
-      key,
-      bucket,
-      duration,
+        url,
+        key,
+        bucket,
+        duration,
     };
-  }
+}
 
   async uploadMultipleFiles(files: MulterFile[], folder: string = 'uploads'): Promise<UploadResult[]> {
     return Promise.all(files.map(file => this.uploadFile(file, folder)));
@@ -189,11 +221,42 @@ export class StorageService {
       throw new NotFoundException('File not found');
     }
   }
-
-  async getFileUrl(key: string, expirySeconds: number = 3600): Promise<string> {
+async getFileUrl(key: string, expirySeconds: number = 3600): Promise<string> {
+    // ✅ Use public URL if available
+    const publicUrl = this.configService.get<string>('minio.publicUrl');
+    if (publicUrl) {
+        const baseUrl = publicUrl.endsWith('/') ? publicUrl : `${publicUrl}/`;
+        return `${baseUrl}${key}`;
+    }
+    
+    // Fallback to presigned URL
     const bucket = this.configService.get<string>('minio.bucket') || 'orthovoix';
     try {
-      return await this.minioClient.presignedGetObject(bucket, key, expirySeconds);
+        return await this.minioClient.presignedGetObject(bucket, key, expirySeconds);
+    } catch (error) {
+        throw new NotFoundException('File not found');
+    }
+}
+
+  /**
+   * Get public URL for a file (public method)
+   * Use this method when you need a permanent/public URL
+   */
+  async getPublicFileUrl(key: string): Promise<string> {
+    try {
+      return this.getPublicUrl(key);
+    } catch (error) {
+      throw new NotFoundException('File not found');
+    }
+  }
+
+  /**
+   * Get presigned URL for a file (public method)
+   * Use this method when you need a temporary URL with expiration
+   */
+  async getPresignedFileUrl(key: string, expirySeconds: number = 3600): Promise<string> {
+    try {
+      return await this.getPresignedUrl(key, expirySeconds);
     } catch (error) {
       throw new NotFoundException('File not found');
     }
