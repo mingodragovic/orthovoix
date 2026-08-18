@@ -3,7 +3,9 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import { tokenManager } from '@/utils/tokenManager';
 import { toast } from 'sonner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// ✅ Use relative path for all environments
+// In production, Nginx proxies /api to the backend
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -62,7 +64,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-// ✅ Auto-refresh token every 10 minutes
+// Auto-refresh token every 10 minutes
 setInterval(async () => {
   const refreshToken = tokenManager.getRefreshToken();
   if (!refreshToken) return;
