@@ -28,10 +28,14 @@ services:
       - minio_data:/data
     ports:
       - "9000:9000"
+<<<<<<< HEAD
       - "9001:9001" 
+=======
+      - "9001:9001"
+>>>>>>> 7a4640e4a6a10c5c76bc89c97f769e4723ce43ff
     networks:
       - orthovoix_network
-    command: server /data
+    command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -50,6 +54,7 @@ services:
       sleep 10;
       mc alias set myminio http://minio:9000 minioadmin ${MINIO_PASSWORD};
       mc mb myminio/orthovoix || true;
+      mc anonymous set public myminio/orthovoix;
       exit 0;
       "
 
@@ -106,6 +111,7 @@ services:
     depends_on:
       - frontend
       - backend
+      - minio
     ports:
       - "80:80"
       - "443:443"

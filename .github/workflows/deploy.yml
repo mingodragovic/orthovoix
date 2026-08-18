@@ -13,14 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file
+      - name: Create .env file for transfer
         run: |
           echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          # ✅ ADD THIS LINE
+          echo "MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}" >> .env
+          echo "MINIO_SECRET_KEY=${{ secrets.MINIO_PASSWORD }}" >> .env
           echo "MINIO_PUBLIC_URL=https://${{ secrets.DOMAIN }}/storage/" >> .env
+          echo "MAILGUN_SMTP_HOST=smtp.mailgun.org" >> .env
+          echo "MAILGUN_SMTP_PORT=587" >> .env
+          echo "MAILGUN_SMTP_USER=${{ secrets.MAILGUN_USER }}" >> .env
+          echo "MAILGUN_SMTP_PASS=${{ secrets.MAILGUN_PASS }}" >> .env
+          echo "MAILGUN_FROM=${{ secrets.MAILGUN_FROM }}" >> .env
+          echo "FRONTEND_URL=https://${{ secrets.DOMAIN }}" >> .env
+          echo "APP_URL=https://${{ secrets.DOMAIN }}" >> .env
+          echo "CORS_ORIGIN=https://${{ secrets.DOMAIN }}" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "PORT=3000" >> .env
+          echo "DB_HOST=postgres" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USERNAME=postgres" >> .env
+          echo "DB_DATABASE=orthovoix_db" >> .env
+          echo "MINIO_ENDPOINT=minio" >> .env
+          echo "MINIO_PORT=9000" >> .env
+          echo "MINIO_USE_SSL=false" >> .env
+          echo "MINIO_BUCKET=orthovoix" >> .env
 
       - name: Copy files to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -42,36 +61,93 @@ jobs:
           script: |
             cd /opt/orthovoix || exit 1
             
-            # Create .env file
-            cat > .env << EOF
+            # Ensure nginx.conf exists
+            if [ ! -f nginx.conf ]; then
+              echo "❌ nginx.conf not found!"
+              exit 1
+            fi
+            
+            # Create .env file with all variables
+            cat > .env << 'EOF'
+            NODE_ENV=production
+            PORT=3000
+            APP_URL=https://${{ secrets.DOMAIN }}
+            FRONTEND_URL=https://${{ secrets.DOMAIN }}
+            CORS_ORIGIN=https://${{ secrets.DOMAIN }}
             DOMAIN=${{ secrets.DOMAIN }}
+            DB_HOST=postgres
+            DB_PORT=5432
+            DB_USERNAME=postgres
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}
+            DB_DATABASE=orthovoix_db
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            MINIO_ENDPOINT=minio
+            MINIO_PORT=9000
+            MINIO_USE_SSL=false
+            MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+            MINIO_SECRET_KEY=${{ secrets.MINIO_PASSWORD }}
+            MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}
+            MINIO_BUCKET=orthovoix
             MINIO_PUBLIC_URL=https://${{ secrets.DOMAIN }}/storage/
+            MAILGUN_SMTP_HOST=smtp.mailgun.org
+            MAILGUN_SMTP_PORT=587
+            MAILGUN_SMTP_USER=${{ secrets.MAILGUN_USER }}
+            MAILGUN_SMTP_PASS=${{ secrets.MAILGUN_PASS }}
+            MAILGUN_FROM=${{ secrets.MAILGUN_FROM }}
             EOF
             
             # Create frontend .env.production
-            cat > frontend/.env.production << EOF
+            mkdir -p frontend
+            cat > frontend/.env.production << 'EOF'
             VITE_API_URL=/api
             VITE_APP_NAME=OrthoVoix
             VITE_APP_VERSION=0.0.1
             EOF
             
-            # Ensure SSL directory exists and copy certificates
+            # Ensure SSL directory exists
             mkdir -p ssl
+            
+            # Copy SSL certificates
             if [ -f /etc/letsencrypt/live/ortho-voix.site/fullchain.pem ]; then
-              cp /etc/letsencrypt/live/ortho-voix.site/fullchain.pem ssl/
-              cp /etc/letsencrypt/live/ortho-voix.site/privkey.pem ssl/
+              cp /etc/letsencrypt/live/ortho-voix.site/fullchain.pem ssl/cert.pem
+              cp /etc/letsencrypt/live/ortho-voix.site/privkey.pem ssl/key.pem
+              echo "✅ SSL certificates copied"
+            else
+              echo "⚠️ SSL certificates not found, generating self-signed..."
+              openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout ssl/key.pem \
+                -out ssl/cert.pem \
+                -subj "/C=US/ST=State/L=City/O=Organization/CN=${{ secrets.DOMAIN }}"
             fi
             
-            # Deploy
-            docker compose down || true
+            # Stop and remove old containers
+            docker compose down -v || true
+            
+            # Pull latest images
             docker compose pull || true
+            
+            # Build and start containers
             docker compose up -d --build
             
-            # Clean up
+            # Wait for services to be ready
+            echo "⏳ Waiting for services to be ready..."
+            sleep 30
+            
+            # Check if services are running
+            echo "📊 Checking service status:"
+            docker compose ps
+            
+            # Check health of services
+            echo "🩺 Checking backend health..."
+            curl -f https://${{ secrets.DOMAIN }}/api/health || echo "⚠️ Health check failed"
+            
+            # Test MinIO access
+            echo "🪣 Testing MinIO storage..."
+            curl -I https://${{ secrets.DOMAIN }}/storage/ || echo "⚠️ Storage endpoint check failed"
+            
+            # Clean up unused images
             docker system prune -f
             
             echo "✅ Deployment complete!"
-            docker compose ps
+            echo "📍 Application is running at: https://${{ secrets.DOMAIN }}"
+            echo "🗄️ MinIO Console: https://${{ secrets.DOMAIN }}/minio-console/"
