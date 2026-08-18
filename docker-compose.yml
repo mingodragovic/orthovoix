@@ -73,7 +73,6 @@ services:
       CORS_ORIGIN: https://${DOMAIN}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
-      MINIO_USE_SSL: false
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: ${MINIO_PASSWORD}
       MINIO_BUCKET: orthovoix
