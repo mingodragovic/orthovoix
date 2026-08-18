@@ -19,6 +19,8 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          # ✅ ADD THIS LINE
+          echo "MINIO_PUBLIC_URL=https://${{ secrets.DOMAIN }}/storage/" >> .env
 
       - name: Copy files to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -46,6 +48,7 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             MINIO_PASSWORD=${{ secrets.MINIO_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            MINIO_PUBLIC_URL=https://${{ secrets.DOMAIN }}/storage/
             EOF
             
             # Create frontend .env.production
