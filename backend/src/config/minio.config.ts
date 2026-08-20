@@ -7,4 +7,5 @@ export default registerAs('minio', () => ({
   accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
   secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
   bucket: process.env.MINIO_BUCKET || 'orthovoix',
+    publicUrl: process.env.MINIO_PUBLIC_URL || '',
 }));
