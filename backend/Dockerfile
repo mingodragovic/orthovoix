@@ -25,10 +25,6 @@ RUN npm ci --only=production && npm install tsconfig-paths
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 
-# ✅ Copy migrations to the correct location
-COPY --from=builder /app/src/database/migrations ./dist/database/migrations
-
 EXPOSE 3000
 
-# ✅ Run migrations on startup
-CMD ["sh", "-c", "npm run migration:run && node dist/main"]
+CMD ["node", "dist/main"]
