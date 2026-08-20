@@ -9,7 +9,7 @@ import { Appointment } from '../modules/appointments/entities/appointment.entity
 import { Notification } from '../modules/notifications/entities/notification.entity';
 import { Recording } from '../modules/recordings/entities/recording.entity';
 import { Submission } from '../modules/submissions/entities/submission.entity';
-import { join } from 'path';
+import { join } from 'path';  // ✅ ADD THIS
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'orthovoix_db',
   entities: [User, Patient, Exercise, PatientExercise, Progress, Appointment, Notification, Recording, Submission],
-  migrations: [join(__dirname, '..', 'database', 'migrations', '*.{ts,js}')],
+  migrations: [join(__dirname, '..', 'database', 'migrations', '*.{ts,js}')],  // ✅ FIXED
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };
