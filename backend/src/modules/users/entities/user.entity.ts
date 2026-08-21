@@ -1,3 +1,4 @@
+// src/modules/users/entities/user.entity.ts
 import {
   Entity,
   Column,
@@ -34,6 +35,9 @@ export class User {
   @Column({ nullable: true })
   avatar?: string;
 
+  @Column({ nullable: true })
+  avatarKey?: string;
+
   @Column({ default: true })
   isActive!: boolean;
 
@@ -69,13 +73,14 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-@BeforeInsert()
-@BeforeUpdate()
-async hashPassword() {
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
     // ✅ Check if password is ALREADY hashed
     // If it starts with $2b$, it's already hashed - skip!
     if (this.password && !this.password.startsWith('$2b$')) {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
     }
-}}
+  }
+}

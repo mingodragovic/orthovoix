@@ -9,19 +9,36 @@ import {
 import { UsersService } from '../users/users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { comparePassword, hashPassword } from '../../utils/helpers';
+import { comparePassword } from '../../utils/helpers';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from '../users/interfaces/user-roles.enum';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ProfileService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly storageService: StorageService,
+  ) {}
 
   /**
-   * Get user profile
+   * Get user profile with fresh presigned avatar URL
    */
   async getProfile(userId: string): Promise<User> {
-    return this.usersService.findById(userId);
+    const user = await this.usersService.findById(userId);
+    
+    // Generate fresh presigned URL for avatar (1 hour expiration)
+    if (user.avatarKey) {
+      try {
+        const avatarUrl = await this.storageService.getFileUrl(user.avatarKey, 3600);
+        user.avatar = avatarUrl;
+      } catch (error) {
+        console.warn('Failed to generate avatar URL:', error);
+        user.avatar = undefined;
+      }
+    }
+    
+    return user;
   }
 
   /**
@@ -64,15 +81,32 @@ export class ProfileService {
       }
     });
 
-    // If avatar is an empty string, treat it as undefined (keep existing)
-    if (updateData.avatar === '') {
-      delete updateData.avatar;
-    }
-
     console.log('📝 Updating profile with:', updateData);
 
     Object.assign(user, updateData);
     return this.usersService.update(userId, updateData);
+  }
+
+  /**
+   * Update avatar with key from storage
+   */
+  async updateAvatar(userId: string, avatarKey: string): Promise<User> {
+    const user = await this.usersService.findById(userId);
+    
+    // Store the key
+    user.avatarKey = avatarKey;
+    
+    // Generate fresh URL for immediate display
+    try {
+      user.avatar = await this.storageService.getFileUrl(avatarKey, 3600);
+    } catch (error) {
+      console.warn('Failed to generate avatar URL during update:', error);
+    }
+    
+    return this.usersService.update(userId, { 
+      avatarKey: avatarKey,
+      avatar: user.avatar,
+    });
   }
 
   /**
@@ -103,8 +137,15 @@ export class ProfileService {
    */
   async removeAvatar(userId: string): Promise<User> {
     const user = await this.usersService.findById(userId);
+    
+    // Clear both the key and the avatar field
+    user.avatarKey = undefined;
     user.avatar = undefined;
-    return this.usersService.update(userId, { avatar: undefined });
+    
+    return this.usersService.update(userId, { 
+      avatarKey: undefined,
+      avatar: undefined,
+    });
   }
 
   /**

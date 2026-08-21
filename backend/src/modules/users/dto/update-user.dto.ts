@@ -1,3 +1,4 @@
+// src/modules/users/dto/update-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
@@ -34,6 +35,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @ApiProperty({ required: false, description: 'Storage key for the avatar image' })
+  @IsOptional()
+  @IsString()
+  avatarKey?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

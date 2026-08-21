@@ -18,6 +18,9 @@ export class UserResponseDto {
   @ApiProperty({ required: false, example: 'https://example.com/avatar.jpg' })
   avatar?: string;
 
+  @ApiProperty({ required: false, description: 'Storage key for the avatar image' })
+  avatarKey?: string;
+
   @ApiProperty({ example: true })
   isActive!: boolean;
 

@@ -1,3 +1,4 @@
+// src/modules/users/dto/create-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
@@ -41,6 +42,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @ApiProperty({ required: false, description: 'Storage key for the avatar image' })
+  @IsOptional()
+  @IsString()
+  avatarKey?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

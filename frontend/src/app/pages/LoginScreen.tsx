@@ -1,31 +1,25 @@
 // src/app/pages/LoginScreen.tsx
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Globe, ChevronDown, User, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Globe, ChevronDown, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useLogin } from '@/hooks/useAuth';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useTranslation } from '@/contexts/TranslationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { loginSchema, LoginFormValues } from '@/utils/validators';
 import { Role } from '@/types/api.types';
 
-interface LoginScreenProps {
-  onLogin?: (email: string, password: string, role: Role) => void;
-}
-
-export function LoginScreen({ onLogin }: LoginScreenProps) {
+export function LoginScreen() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>('orthophoniste');
-  const [lang, setLang] = useState(() => {
-    const savedLang = localStorage.getItem('orthovoix_language') || 'fr';
-    return savedLang.toUpperCase();
-  });
+  const { language, setLanguage, isRTL } = useLanguage();
   const [showLang, setShowLang] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useTranslation();
-  const { setLanguage } = useLanguage();
   const loginMutation = useLogin();
+
+  const displayLang = useMemo(() => language.toUpperCase(), [language]);
 
   const {
     register,
@@ -55,7 +49,6 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
 
   const handleLanguageChange = (locale: string) => {
     const normalizedLocale = locale.toLowerCase();
-    setLang(locale.toUpperCase());
     setLanguage(normalizedLocale);
     setShowLang(false);
   };
@@ -67,13 +60,19 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
     });
   };
 
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = () => setShowLang(false);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4 md:p-8"
       style={{
         background: 'linear-gradient(135deg, #4A90D9 0%, #6EC6A0 100%)',
       }}
-      onClick={() => setShowLang(false)}
     >
       <div className="w-full max-w-md lg:max-w-lg">
         {/* Logo */}
@@ -110,7 +109,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-xl px-3 py-1.5"
             >
               <Globe size={14} />
-              {lang}
+              {displayLang}
               <ChevronDown size={12} />
             </button>
             {showLang && (
@@ -120,7 +119,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                     key={l}
                     onClick={() => handleLanguageChange(l)}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors ${
-                      lang === l ? 'text-primary font-medium' : 'text-foreground'
+                      displayLang === l ? 'text-primary font-medium' : 'text-foreground'
                     }`}
                   >
                     {l}

@@ -2,10 +2,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { QueryProvider } from '@/providers/QueryProvider';
-import { I18nProvider } from '@/providers/I18nProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { TranslationProvider } from '@/contexts/TranslationContext';
 import { useAuth } from '@/providers/AuthProvider';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Layout
 import { AppLayout } from './components/layout/AppLayout';
@@ -55,7 +56,6 @@ import { ParentSubmissions } from './pages/ParentSubmissions';
 import { AdminSubmissionDetail } from './pages/AdminSubmissionDetail';
 import { AdminSubmissions } from './pages/AdminSubmissions';
 import { AdminNotifications } from './pages/AdminNotifications';
-import { PWAUpdate } from './components/common/PWAUpdate';
 
 // Loading component
 function LoadingScreen() {
@@ -71,7 +71,7 @@ function LoadingScreen() {
 
 // App Content
 function AppContent() {
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const { isLoading } = useAuth();
 
   if (isLoading) {
@@ -88,7 +88,6 @@ function AppContent() {
         }}
         dir={isRTL ? 'rtl' : 'ltr'}
       />
-      <PWAUpdate />
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginScreen />} />
@@ -212,22 +211,22 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-<Route
-  path="/admin/submissions"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminSubmissions />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/admin/submissions/:id"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminSubmissionDetail />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/admin/submissions"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminSubmissions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/submissions/:id"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminSubmissionDetail />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Parent Routes */}
           <Route
@@ -262,22 +261,22 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-<Route
-  path="/parent/submissions"
-  element={
-    <ProtectedRoute allowedRoles={['parent']}>
-      <ParentSubmissions />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/parent/submissions/:id"
-  element={
-    <ProtectedRoute allowedRoles={['parent']}>
-      <ParentSubmissionDetail />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/parent/submissions"
+            element={
+              <ProtectedRoute allowedRoles={['parent']}>
+                <ParentSubmissions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent/submissions/:id"
+            element={
+              <ProtectedRoute allowedRoles={['parent']}>
+                <ParentSubmissionDetail />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/parent/progress"
             element={
@@ -328,38 +327,38 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-<Route
-  path="/appointments"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminAppointments />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/appointments/:id"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminAppointmentDetail />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/notifications"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminNotifications />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/recordings"
-  element={
-    <ProtectedRoute allowedRoles={['orthophoniste']}>
-      <AdminRecordings />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminAppointments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments/:id"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminAppointmentDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminNotifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/recordings"
+            element={
+              <ProtectedRoute allowedRoles={['orthophoniste']}>
+                <AdminRecordings />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Fallback */}
@@ -375,11 +374,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <QueryProvider>
-        <I18nProvider>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </I18nProvider>
+        <LanguageProvider>
+          <TranslationProvider>
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          </TranslationProvider>
+        </LanguageProvider>
       </QueryProvider>
     </BrowserRouter>
   );

@@ -12,17 +12,14 @@ import {
   Trash2, 
   Save, 
   AlertCircle,
-  Shield,
-  Briefcase,
-  UserCircle,
-  UploadCloud,
+  Loader2,
+  Image,
 } from 'lucide-react';
 import { useProfile, useUpdateProfile, useChangePassword, useUploadAvatar, useRemoveAvatar } from '@/hooks/useProfile';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useToast } from '@/hooks/useToast';
 import { Role } from '@/types/api.types';
 import { useAuth } from '@/providers/AuthProvider';
-import { validateAvatarFile } from '@/lib/api/profile';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 
 // Profile form schema
@@ -61,12 +58,10 @@ export function SettingsPage() {
   const uploadAvatar = useUploadAvatar();
   const removeAvatar = useRemoveAvatar();
   
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'avatar' | 'password'>('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   // Profile form
   const {
@@ -113,106 +108,149 @@ export function SettingsPage() {
     }
   }, [profile, resetProfile]);
 
-  // === Handle File Selection (Preview only) ===
+  // Refetch profile when user changes
+  useEffect(() => {
+    if (user?.id) {
+      refetch();
+    }
+  }, [user?.id, refetch]);
+
+  // Handle file selection
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    
     if (files && files.length > 0) {
       const file = files[0];
-      try {
-        validateAvatarFile(file);
-        setSelectedFile(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setAvatarPreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      } catch (error: any) {
-        showToast.error(error.message);
+      
+      // Validate file
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        showToast.error(t('settings.avatar.error.invalidType', 'Invalid file type. Only JPEG, PNG, GIF, and WEBP are allowed.'));
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
+        return;
       }
+      
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showToast.error(t('settings.avatar.error.sizeExceeded', 'File size exceeds 5MB limit.'));
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Store the file and create preview
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // === Upload Avatar (Step 1) – stores URL in state ===
-  const handleUploadAvatar = async () => {
-    if (!selectedFile) {
-      showToast.error('Please select a file first');
-      return;
+  // Handle Profile Submit
+  const handleProfileSubmit = async (data: ProfileFormValues) => {
+    try {
+      const updateData: any = {
+        name: data.name,
+        email: data.email,
+      };
+
+      if (profile?.role === 'orthophoniste') {
+        updateData.specialization = data.specialization || null;
+        updateData.licenseNumber = data.licenseNumber || null;
+      } else if (profile?.role === 'parent') {
+        updateData.childName = data.childName || null;
+      }
+
+      await updateProfile.mutateAsync(updateData);
+      
+      setIsEditing(false);
+      showToast.success(t('settings.profile.updateSuccess', 'Profile updated successfully'));
+      
+      // Refresh profile to get latest data
+      await refetch();
+      
+    } catch (error: any) {
+      showToast.error(error.message || t('settings.profile.updateError', 'Failed to update profile'));
     }
-    if (!user?.id) {
-      showToast.error('User ID not found');
+  };
+
+  // Handle Avatar Submit
+  const handleAvatarSubmit = async () => {
+    if (!selectedFile) {
+      showToast.error(t('settings.avatar.error.noFile', 'Please select an image first'));
       return;
     }
 
-    setIsUploading(true);
     try {
-      // Upload file → get URL
-      const result = await uploadAvatar.mutateAsync({
-        file: selectedFile,
-        userId: user.id,
-      });
+      await uploadAvatar.mutateAsync(selectedFile);
       
-      // ✅ Store the URL in state (but do NOT save to profile yet)
-      setUploadedAvatarUrl(result.url);
-      
-      // Clear file input and preview
       setSelectedFile(null);
       setAvatarPreview(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-
-      showToast.success('Avatar uploaded! Save your profile to apply changes.');
+      
+      // Force refetch to get the new avatar URL
+      await refetch();
+      
+      showToast.success(t('settings.avatar.uploadSuccess', 'Avatar uploaded successfully'));
     } catch (error: any) {
-      showToast.error(error.message || 'Failed to upload avatar');
-    } finally {
-      setIsUploading(false);
+      showToast.error(error.message || t('settings.avatar.uploadError', 'Failed to upload avatar'));
     }
   };
 
-  // === Handle Profile Submit (Step 2) – includes avatar URL ===
-  const handleProfileSubmit = async (data: ProfileFormValues) => {
-    const updateData: any = {
-      name: data.name,
-      email: data.email,
-    };
-
-    // ✅ Include avatar URL if we have one
-    if (uploadedAvatarUrl) {
-      updateData.avatar = uploadedAvatarUrl;
-    }
-
-    if (profile?.role === 'orthophoniste') {
-      updateData.specialization = data.specialization || null;
-      updateData.licenseNumber = data.licenseNumber || null;
-    } else if (profile?.role === 'parent') {
-      updateData.childName = data.childName || null;
-    }
-
-    await updateProfile.mutateAsync(updateData);
-    setIsEditing(false);
-    setUploadedAvatarUrl(null); // Clear after save
-    showToast.success(t('settings.profile.updateSuccess', 'Profile updated successfully'));
-  };
-
-  // === Remove Avatar ===
+  // Remove Avatar
   const handleRemoveAvatar = async () => {
     if (window.confirm(t('settings.avatar.remove.confirm', 'Are you sure you want to remove your avatar?'))) {
-      await removeAvatar.mutateAsync();
-      refetch();
+      try {
+        await removeAvatar.mutateAsync();
+        
+        setSelectedFile(null);
+        setAvatarPreview(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        
+        await refetch();
+        
+        showToast.success(t('settings.avatar.remove.success', 'Avatar removed successfully'));
+      } catch (error: any) {
+        showToast.error(error.message || t('settings.avatar.remove.error', 'Failed to remove avatar'));
+      }
     }
   };
 
-  // === Password Submit ===
+  // Password Submit
   const handlePasswordSubmit = async (data: PasswordFormValues) => {
-    await changePassword.mutateAsync({
-      currentPassword: data.currentPassword,
-      newPassword: data.newPassword,
-    });
-    resetPassword();
-    showToast.success(t('settings.password.success', 'Password changed successfully'));
+    try {
+      await changePassword.mutateAsync({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      resetPassword();
+      showToast.success(t('settings.password.success', 'Password changed successfully'));
+    } catch (error: any) {
+      showToast.error(error.message || t('settings.password.error', 'Failed to change password'));
+    }
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    if (profile) {
+      resetProfile({
+        name: profile.name || '',
+        email: profile.email || '',
+        specialization: profile.specialization || '',
+        licenseNumber: profile.licenseNumber || '',
+        childName: profile.childName || '',
+      });
+    }
   };
 
   const getRoleLabel = (role: Role) => {
@@ -223,12 +261,15 @@ export function SettingsPage() {
     }
   };
 
+  // Determine which avatar to show
+  const displayAvatar = avatarPreview || profile?.avatar || null;
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-gray-500 mt-2">{t('common.loading', {})}</p>
+          <p className="text-gray-500 mt-2">{t('common.loading', 'Loading...')}</p>
         </div>
       </div>
     );
@@ -238,19 +279,17 @@ export function SettingsPage() {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-          <p className="text-red-500">{t('common.error', {})}</p>
+          <p className="text-red-500">{error?.message || t('common.error', 'An error occurred')}</p>
           <button
             onClick={() => refetch()}
             className="mt-2 text-primary hover:underline"
           >
-            {t('common.retry', {})}
+            {t('common.retry', 'Retry')}
           </button>
         </div>
       </div>
     );
   }
-
-  const currentAvatar = avatarPreview || uploadedAvatarUrl || profile?.avatar || user?.avatar || null;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -272,15 +311,21 @@ export function SettingsPage() {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
-                  {currentAvatar ? (
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0 overflow-hidden">
+                  {displayAvatar ? (
                     <img 
-                      src={currentAvatar} 
+                      src={displayAvatar} 
                       alt={profile.name}
                       className="w-full h-full rounded-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = profile.name?.charAt(0)?.toUpperCase() || 'U';
+                      }}
                     />
                   ) : (
-                    profile.name?.charAt(0)?.toUpperCase() || 'U'
+                    <span className="text-sm font-bold">
+                      {profile.name?.charAt(0)?.toUpperCase() || 'U'}
+                    </span>
                   )}
                 </div>
                 <div className="min-w-0">
@@ -302,6 +347,17 @@ export function SettingsPage() {
                 {t('settings.tabs.profile', 'Profile')}
               </button>
               <button
+                onClick={() => setActiveTab('avatar')}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  activeTab === 'avatar'
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-gray-50'
+                }`}
+              >
+                <Image size={18} />
+                {t('settings.tabs.avatar', 'Avatar')}
+              </button>
+              <button
                 onClick={() => setActiveTab('password')}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   activeTab === 'password'
@@ -312,17 +368,6 @@ export function SettingsPage() {
                 <Lock size={18} />
                 {t('settings.tabs.password', 'Password')}
               </button>
-              <button
-                onClick={() => setActiveTab('security')}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  activeTab === 'security'
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-muted-foreground hover:bg-gray-50'
-                }`}
-              >
-                <Shield size={18} />
-                {t('settings.tabs.security', 'Security')}
-              </button>
             </div>
           </div>
         </div>
@@ -330,6 +375,7 @@ export function SettingsPage() {
         {/* Content Area */}
         <div className="lg:col-span-3">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="p-6">
@@ -346,28 +392,29 @@ export function SettingsPage() {
                     {isEditing ? (
                       <>
                         <button
-                          onClick={() => {
-                            setIsEditing(false);
-                            if (profile) {
-                              resetProfile({
-                                name: profile.name || '',
-                                email: profile.email || '',
-                                specialization: profile.specialization || '',
-                                licenseNumber: profile.licenseNumber || '',
-                                childName: profile.childName || '',
-                              });
-                            }
-                          }}
+                          onClick={handleCancelEdit}
                           className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm hover:bg-gray-50 transition-colors"
+                          disabled={updateProfile.isPending}
                         >
-                          {t('common.cancel', {})}
+                          {t('common.cancel', 'Cancel')}
                         </button>
                         <button
                           form="profileForm"
                           type="submit"
-                          className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm hover:bg-primary/90 transition-colors"
+                          disabled={updateProfile.isPending}
+                          className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
                         >
-                          {t('common.save', {})}
+                          {updateProfile.isPending ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              {t('common.saving', 'Saving...')}
+                            </>
+                          ) : (
+                            <>
+                              <Save size={16} />
+                              {t('common.save', 'Save')}
+                            </>
+                          )}
                         </button>
                       </>
                     ) : (
@@ -375,102 +422,10 @@ export function SettingsPage() {
                         onClick={() => setIsEditing(true)}
                         className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm hover:bg-primary/90 transition-colors"
                       >
-                        {t('common.edit', {})}
+                        {t('common.edit', 'Edit')}
                       </button>
                     )}
                   </div>
-                </div>
-
-                {/* Avatar Section */}
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-6">
-                    <div className="relative">
-                      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-semibold overflow-hidden">
-                        {currentAvatar ? (
-                          <img 
-                            src={currentAvatar} 
-                            alt={profile.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          profile.name?.charAt(0)?.toUpperCase() || 'U'
-                        )}
-                      </div>
-                      <div className="absolute -bottom-2 -right-2">
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleFileSelect}
-                          accept="image/*"
-                          className="hidden"
-                        />
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="p-1.5 bg-white rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
-                          title={t('settings.avatar.upload', 'Upload avatar')}
-                        >
-                          <Camera size={16} className="text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{profile.name}</p>
-                      <p className="text-xs text-muted-foreground">{profile.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary`}>
-                          {getRoleLabel(profile.role)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Avatar Actions - Only visible when editing */}
-                  {isEditing && (
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      {selectedFile ? (
-                        <>
-                          <button
-                            onClick={handleUploadAvatar}
-                            disabled={isUploading || uploadAvatar.isPending}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-                          >
-                            {isUploading || uploadAvatar.isPending ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                {t('common.loading', {})}
-                              </>
-                            ) : (
-                              <>
-                                <UploadCloud size={16} />
-                                {t('settings.avatar.upload', 'Upload')}
-                              </>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedFile(null);
-                              setAvatarPreview(null);
-                              if (fileInputRef.current) {
-                                fileInputRef.current.value = '';
-                              }
-                            }}
-                            className="px-3 py-1.5 border border-gray-200 text-sm rounded-lg hover:bg-gray-50 transition-colors"
-                          >
-                            {t('common.cancel', {})}
-                          </button>
-                        </>
-                      ) : profile.avatar ? (
-                        <button
-                          onClick={handleRemoveAvatar}
-                          disabled={removeAvatar.isPending}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 text-sm hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 size={16} />
-                          {t('settings.avatar.remove', 'Remove avatar')}
-                        </button>
-                      ) : null}
-                    </div>
-                  )}
                 </div>
 
                 {/* Profile Form */}
@@ -484,6 +439,7 @@ export function SettingsPage() {
                         type="text"
                         {...registerProfile('name')}
                         disabled={!isEditing || updateProfile.isPending}
+                        placeholder={t('settings.profile.namePlaceholder', 'Enter your full name')}
                         className={`w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none transition-all ${
                           profileErrors.name ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
                         } ${!isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -503,6 +459,7 @@ export function SettingsPage() {
                         type="email"
                         {...registerProfile('email')}
                         disabled={!isEditing || updateProfile.isPending}
+                        placeholder={t('settings.profile.emailPlaceholder', 'Enter your email address')}
                         className={`w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none transition-all ${
                           profileErrors.email ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
                         } ${!isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -525,6 +482,7 @@ export function SettingsPage() {
                             type="text"
                             {...registerProfile('specialization')}
                             disabled={!isEditing || updateProfile.isPending}
+                            placeholder={t('settings.profile.specializationPlaceholder', 'Enter your specialization')}
                             className={`w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none transition-all ${
                               profileErrors.specialization ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
                             } ${!isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -538,6 +496,7 @@ export function SettingsPage() {
                             type="text"
                             {...registerProfile('licenseNumber')}
                             disabled={!isEditing || updateProfile.isPending}
+                            placeholder={t('settings.profile.licenseNumberPlaceholder', 'Enter your license number')}
                             className={`w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none transition-all ${
                               profileErrors.licenseNumber ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
                             } ${!isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -555,6 +514,7 @@ export function SettingsPage() {
                           type="text"
                           {...registerProfile('childName')}
                           disabled={!isEditing || updateProfile.isPending}
+                          placeholder={t('settings.profile.childNamePlaceholder', 'Enter child name')}
                           className={`w-full bg-muted rounded-xl px-4 py-3 text-sm outline-none transition-all ${
                             profileErrors.childName ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
                           } ${!isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -563,6 +523,136 @@ export function SettingsPage() {
                     )}
                   </div>
                 </form>
+              </div>
+            )}
+
+            {/* Avatar Tab */}
+            {activeTab === 'avatar' && (
+              <div className="p-6">
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    {t('settings.avatar.title', 'Profile Avatar')}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {t('settings.avatar.subtitle', 'Upload or change your profile picture')}
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center gap-6 p-8 bg-gray-50 rounded-lg">
+                  {/* Avatar Preview */}
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center text-primary text-4xl font-semibold overflow-hidden border-4 border-white shadow-lg">
+                      {displayAvatar ? (
+                        <img 
+                          src={displayAvatar} 
+                          alt={profile.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement!.innerHTML = profile.name?.charAt(0)?.toUpperCase() || 'U';
+                          }}
+                        />
+                      ) : (
+                        <span className="text-4xl font-bold">
+                          {profile.name?.charAt(0)?.toUpperCase() || 'U'}
+                        </span>
+                      )}
+                    </div>
+                    {selectedFile && (
+                      <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {t('settings.avatar.new', 'New')}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-sm font-medium">{profile.name}</p>
+                    <p className="text-xs text-muted-foreground">{profile.email}</p>
+                  </div>
+
+                  {/* File Input */}
+                  <div className="w-full max-w-md">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/*"
+                      className="hidden"
+                      id="avatar-upload"
+                    />
+                    <label
+                      htmlFor="avatar-upload"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                    >
+                      <Camera size={20} className="text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {selectedFile ? selectedFile.name : t('settings.avatar.selectImage', 'Click to select an image')}
+                      </span>
+                    </label>
+                    {selectedFile && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {(selectedFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {selectedFile && (
+                      <button
+                        onClick={handleAvatarSubmit}
+                        disabled={uploadAvatar.isPending}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                      >
+                        {uploadAvatar.isPending ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            {t('settings.avatar.uploading', 'Uploading...')}
+                          </>
+                        ) : (
+                          <>
+                            <Save size={16} />
+                            {t('settings.avatar.upload', 'Upload Avatar')}
+                          </>
+                        )}
+                      </button>
+                    )}
+                    
+                    {profile.avatar && !selectedFile && (
+                      <button
+                        onClick={handleRemoveAvatar}
+                        disabled={removeAvatar.isPending}
+                        className="flex items-center gap-2 px-4 py-2 text-red-600 border border-red-200 rounded-lg text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
+                      >
+                        {removeAvatar.isPending ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                        {t('settings.avatar.remove', 'Remove Avatar')}
+                      </button>
+                    )}
+                    
+                    {selectedFile && (
+                      <button
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setAvatarPreview(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                          }
+                        }}
+                        className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                      >
+                        {t('common.cancel', 'Cancel')}
+                      </button>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center max-w-sm">
+                    {t('settings.avatar.supportedFormats', 'Supported formats: JPEG, PNG, GIF, WEBP. Maximum file size: 5MB.')}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -646,8 +736,8 @@ export function SettingsPage() {
                   >
                     {changePassword.isPending ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {t('common.loading', {})}
+                        <Loader2 size={16} className="animate-spin" />
+                        {t('common.loading', 'Loading...')}
                       </>
                     ) : (
                       <>
@@ -657,67 +747,6 @@ export function SettingsPage() {
                     )}
                   </button>
                 </form>
-              </div>
-            )}
-
-            {/* Security Tab */}
-            {activeTab === 'security' && (
-              <div className="p-6">
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                    {t('settings.security.title', 'Security')}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {t('settings.security.subtitle', 'Manage your account security settings')}
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {/* Account Information */}
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h3 className="text-sm font-medium mb-3">
-                      {t('settings.security.accountInfo', 'Account Information')}
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">{t('settings.security.role', 'Role')}</span>
-                        <span className="text-sm font-medium">{getRoleLabel(profile.role)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">{t('settings.security.status', 'Status')}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          profile.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                          {profile.isActive ? t('users.active', {}) : t('users.inactive', {})}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">{t('settings.security.memberSince', 'Member Since')}</span>
-                        <span className="text-sm">{new Date(profile.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">{t('settings.security.lastLogin', 'Last Login')}</span>
-                        <span className="text-sm">{profile.lastLogin ? new Date(profile.lastLogin).toLocaleString() : '-'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Session Management */}
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h3 className="text-sm font-medium mb-3">
-                      {t('settings.security.session', 'Session Management')}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {t('settings.security.sessionDescription', 'Manage your active sessions across devices')}
-                    </p>
-                    <button
-                      className="text-primary text-sm hover:underline"
-                      onClick={() => showToast.info(t('settings.security.logoutAll', 'Logging out from all devices...'))}
-                    >
-                      {t('settings.security.logoutAllDevices', 'Logout from all devices')}
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
           </div>

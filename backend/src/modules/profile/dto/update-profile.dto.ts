@@ -29,8 +29,16 @@ export class UpdateProfileDto {
     description: 'Avatar URL (can be full URL with query parameters)'
   })
   @IsOptional()
-  @IsString() // ← MUST be @IsString(), NOT @IsUrl()
+  @IsString()
   avatar?: string;
+
+  @ApiProperty({ 
+    required: false,
+    description: 'Storage key for the avatar image (e.g., avatars/user-id/image.png)'
+  })
+  @IsOptional()
+  @IsString()
+  avatarKey?: string;
 
   // Parent-specific fields
   @ApiProperty({ required: false, example: 'Emma' })

@@ -1,5 +1,5 @@
 // src/app/components/common/BottomNav.tsx
-import { Home, Users, BookOpen, BarChart2, User, LogOut, Calendar, Bell } from 'lucide-react';
+import { Home, Users, BookOpen, ClipboardList, User, LogOut, Calendar, Bell } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLocation } from 'react-router-dom';
@@ -18,18 +18,18 @@ export function BottomNav({ role, active, onNavigate, onLogout }: BottomNavProps
   const location = useLocation();
 
   const orthoItems = [
-    { icon: Home, label: t('sidebar.home'), path: '/ortho-dashboard' },
-    { icon: Users, label: t('sidebar.patients'), path: '/patients' },
-    { icon: BookOpen, label: t('sidebar.exercises'), path: '/exercises' },
-    { icon: BarChart2, label: t('sidebar.reports'), path: '/ortho-progress' },
+    { icon: Home, label: t('bottomNav.home'), path: '/ortho-dashboard' },
+    { icon: Users, label: t('bottomNav.patients'), path: '/patients' },
+    { icon: BookOpen, label: t('bottomNav.exercises'), path: '/exercises' },
+    { icon: ClipboardList, label: t('bottomNav.submissions'), path: '/admin/submissions' },
   ];
 
   const parentItems = [
-    { icon: Home, label: t('bottomNav.home', 'Home'), path: '/parent' },
-    { icon: BookOpen, label: t('bottomNav.exercises', 'Exercises'), path: '/parent/exercises' },
-    { icon: Calendar, label: t('bottomNav.appointments', 'Appointments'), path: '/parent/appointments' },
-    { icon: Bell, label: t('bottomNav.notifications', 'Notifications'), path: '/parent/notifications' },
-    { icon: User, label: t('bottomNav.profile', 'Profile'), path: '/parent/profile' },
+    { icon: Home, label: t('bottomNav.home'), path: '/parent' },
+    { icon: BookOpen, label: t('bottomNav.exercises'), path: '/parent/exercises' },
+    { icon: Calendar, label: t('bottomNav.appointments'), path: '/parent/appointments' },
+    { icon: ClipboardList, label: t('bottomNav.submissions'), path: '/parent/submissions' },
+    { icon: User, label: t('bottomNav.profile'), path: '/parent/profile' },
   ];
 
   const items = role === 'orthophoniste' ? orthoItems : parentItems;
@@ -64,7 +64,7 @@ export function BottomNav({ role, active, onNavigate, onLogout }: BottomNavProps
         className="flex flex-col items-center gap-0.5 px-2 py-1 transition-all text-red-500"
       >
         <LogOut size={20} />
-        <span className="text-[10px] font-medium">{t('sidebar.logout')}</span>
+        <span className="text-[10px] font-medium">{t('bottomNav.logout')}</span>
       </button>
     </nav>
   );

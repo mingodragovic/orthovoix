@@ -10,7 +10,8 @@ import {
   ChevronRight,
   FileText,
   Calendar,
-  Bell
+  Bell,
+  ClipboardList,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -42,27 +43,27 @@ export function Sidebar({
   const menuItems = [
     {
       icon: Home,
-      label: t('sidebar.home'),
+      label: t('sidebar.home', 'Home'),
       path: '/ortho-dashboard',
     },
     {
       icon: Users,
-      label: t('sidebar.patients'),
+      label: t('sidebar.patients', 'Patients'),
       path: '/patients',
     },
     {
       icon: BookOpen,
-      label: t('sidebar.exercises', {}),
-      path: '/exercises', 
+      label: t('sidebar.exercises', 'Exercises'),
+      path: '/exercises',
     },
     {
-      icon: BarChart2,
-      label: t('sidebar.reports'),
-      path: '/ortho-progress',
+      icon: ClipboardList,
+      label: t('sidebar.submissions', 'Submissions'),
+      path: '/admin/submissions',
     },
     {
       icon: Users,
-      label: t('sidebar.users', {}) || 'Users',
+      label: t('sidebar.users', 'Users'),
       path: '/users',
     },
     {
@@ -72,18 +73,18 @@ export function Sidebar({
     },
     {
       icon: Calendar,
-      label: t('sidebar.appointments'),
+      label: t('sidebar.appointments', 'Appointments'),
       path: '/appointments',
     },
     {
       icon: Bell,
-      label: t('sidebar.notifications'),
+      label: t('sidebar.notifications', 'Notifications'),
       path: '/notifications',
       badge: true,
     },
     {
       icon: Settings,
-      label: t('sidebar.settings', {}),
+      label: t('sidebar.settings', 'Settings'),
       path: '/settings',
     },
   ];
@@ -120,7 +121,7 @@ export function Sidebar({
         <div className="w-full flex justify-center px-4 py-4">
           <img
             src="/ortho-voix.png"
-            alt="OrthoVoix Logo"
+            alt={t('app.title', 'OrthoVoix')}
             className={`object-contain transition-all duration-300 ${
               isOpen ? 'w-10 h-10' : 'w-8 h-8'
             }`}
@@ -135,7 +136,7 @@ export function Sidebar({
                 <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/20 flex-shrink-0">
                   <img 
                     src={user.avatar} 
-                    alt={user.name || 'User'}
+                    alt={user.name || t('common.user', 'User')}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
@@ -193,6 +194,7 @@ export function Sidebar({
         {/* Footer */}
         <div className="border-t border-border p-3">
           <button
+            onClick={() => onNavigate('/settings')}
             className={`
               w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
               text-muted-foreground hover:bg-muted hover:text-foreground
@@ -202,7 +204,7 @@ export function Sidebar({
           >
             <Settings size={20} className="flex-shrink-0" />
             {isOpen && (
-              <span className="text-sm font-medium">{t('sidebar.settings')}</span>
+              <span className="text-sm font-medium">{t('sidebar.settings', 'Settings')}</span>
             )}
           </button>
           <button
@@ -216,7 +218,7 @@ export function Sidebar({
           >
             <LogOut size={20} className="flex-shrink-0" />
             {isOpen && (
-              <span className="text-sm font-medium">{t('sidebar.logout')}</span>
+              <span className="text-sm font-medium">{t('sidebar.logout', 'Logout')}</span>
             )}
           </button>
         </div>
@@ -229,6 +231,7 @@ export function Sidebar({
               absolute -right-3 top-20 w-6 h-6 rounded-full bg-white border border-border shadow-md flex items-center justify-center hover:bg-muted transition-all
               ${isRTL ? '-left-3 right-auto' : ''}
             `}
+            aria-label={isOpen ? t('sidebar.collapse', 'Collapse sidebar') : t('sidebar.expand', 'Expand sidebar')}
           >
             <ToggleIcon size={14} />
           </button>
