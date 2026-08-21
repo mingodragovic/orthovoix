@@ -6,28 +6,34 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-
-  // ✅ FIXED CORS Configuration - Allow all origins from your domain
-  const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
-    'https://ortho-voix.site',
-    'https://www.ortho-voix.site',
-    'http://ortho-voix.site',
-    'http://www.ortho-voix.site',
-    'http://localhost:5173',
-    'http://localhost:4173',
-    'http://localhost:3000',
-  ];
+  
+  // ✅ Get ConfigService to read CORS origins
+  const configService = app.get(ConfigService);
+  const corsOrigins = configService.get<string[]>('app.corsOrigin') || ['http://localhost:5173'];
 
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin) || origin.endsWith('ortho-voix.site')) {
+      // Check if origin is allowed
+      const isAllowed = corsOrigins.some(allowed => {
+        // Exact match
+        if (allowed === origin) return true;
+        // Wildcard match for subdomains
+        if (allowed.includes('*')) {
+          const pattern = allowed.replace(/\*/g, '.*');
+          return new RegExp(`^${pattern}$`).test(origin);
+        }
+        return false;
+      });
+      
+      if (isAllowed || origin.endsWith('ortho-voix.site')) {
         callback(null, true);
       } else {
         logger.warn(`Blocked CORS request from origin: ${origin}`);
@@ -38,13 +44,11 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Authorization'],
-    maxAge: 86400, // 24 hours
+    maxAge: 86400,
   });
 
-  // Global prefix
   app.setGlobalPrefix('api');
 
-  // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -56,13 +60,9 @@ async function bootstrap() {
     }),
   );
 
-  // Global filters
   app.useGlobalFilters(new HttpExceptionFilter());
-
-  // Global interceptors
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Orthovoix API')
     .setDescription('Authentication and User Management API')

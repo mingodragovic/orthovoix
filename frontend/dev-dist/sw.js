@@ -81,7 +81,7 @@ define(['./workbox-84250dca'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/index.html",
-    "revision": "0.o6bi1n2jcn8"
+    "revision": "0.4j7u2kd8is"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
@@ -102,7 +102,7 @@ define(['./workbox-84250dca'], (function (workbox) { 'use strict';
       maxAgeSeconds: 31536000
     })]
   }), 'GET');
-  workbox.registerRoute(/^https:\/\/api\..*\.*/i, new workbox.NetworkFirst({
+  workbox.registerRoute(/^\/api\/.*/i, new workbox.NetworkFirst({
     "cacheName": "api-cache",
     "networkTimeoutSeconds": 10,
     plugins: [new workbox.ExpirationPlugin({
@@ -124,14 +124,6 @@ define(['./workbox-84250dca'], (function (workbox) { 'use strict';
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 50,
       maxAgeSeconds: 604800
-    })]
-  }), 'GET');
-  workbox.registerRoute(/^https:\/\/.*\.minio\..*/i, new workbox.NetworkFirst({
-    "cacheName": "minio-cache",
-    "networkTimeoutSeconds": 10,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 100,
-      maxAgeSeconds: 86400
     })]
   }), 'GET');
 
