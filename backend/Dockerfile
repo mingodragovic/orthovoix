@@ -27,4 +27,5 @@ COPY --from=builder /app/src ./src
 
 EXPOSE 3000
 
+# ✅ NO MIGRATIONS - just start the app
 CMD ["node", "dist/main"]
