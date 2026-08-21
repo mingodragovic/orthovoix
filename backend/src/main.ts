@@ -6,34 +6,34 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-  
-  // ✅ Get ConfigService to read CORS origins
-  const configService = app.get(ConfigService);
-  const corsOrigins = configService.get<string[]>('app.corsOrigin') || ['http://localhost:5173'];
 
+  // ✅ Clean CORS configuration
+  // Note: OPTIONS preflight requests are now handled by Nginx
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
+      if (!origin) {
+        return callback(null, true);
+      }
       
-      // Check if origin is allowed
-      const isAllowed = corsOrigins.some(allowed => {
-        // Exact match
-        if (allowed === origin) return true;
-        // Wildcard match for subdomains
-        if (allowed.includes('*')) {
-          const pattern = allowed.replace(/\*/g, '.*');
-          return new RegExp(`^${pattern}$`).test(origin);
-        }
-        return false;
-      });
+      // ✅ Allow all origins (you can restrict this later if needed)
+      // For production, you might want to limit to specific domains
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:4173',
+        'https://ortho-voix.site',
+        'https://www.ortho-voix.site',
+        'http://ortho-voix.site',
+        'http://www.ortho-voix.site',
+      ];
       
-      if (isAllowed || origin.endsWith('ortho-voix.site')) {
+      const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('ortho-voix.site');
+      
+      if (isAllowed) {
         callback(null, true);
       } else {
         logger.warn(`Blocked CORS request from origin: ${origin}`);
@@ -41,11 +41,14 @@ async function bootstrap() {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'X-HTTP-Method-Override'],
     exposedHeaders: ['Authorization'],
-    maxAge: 86400,
+    maxAge: 86400, // 24 hours
   });
+
+  // ✅ REMOVED: Manual OPTIONS middleware
+  // Nginx now handles OPTIONS preflight requests
 
   app.setGlobalPrefix('api');
 
@@ -63,6 +66,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
 
+  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Orthovoix API')
     .setDescription('Authentication and User Management API')
