@@ -206,7 +206,7 @@ export function ExercisePractice() {
 
     // Check all slides are recorded
     if (!isAllSlidesRecorded()) {
-      setStatusMessage('Please record audio for all slides before submitting.');
+      setStatusMessage(t('exercisePractice.recordAllSlides'));
       return;
     }
 
@@ -442,7 +442,7 @@ export function ExercisePractice() {
           {t('exercisePractice.slideProgress', 'Slide {current} of {total}')}
           {' • '}
           {totalRecorded === totalSlides ? (
-            <span className="text-green-600 font-medium">✅ All slides recorded!</span>
+            <span className="text-green-600 font-medium">{t('exercisePractice.allSlidesRecorded', '✅ All slides recorded!')}</span>
           ) : (
             <span className="text-gray-500">
               {t('exercisePractice.recordedSlides', '{count} of {total} recorded')}
@@ -533,7 +533,7 @@ export function ExercisePractice() {
                     {recordings[index]?.isRecorded && (
                       <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-green-500 text-white text-[8px] sm:text-xs px-2 py-0.5 sm:px-3 sm:py-1 rounded-full flex items-center gap-1">
                         <CheckCircle size={10} className="sm:w-3 sm:h-3" />
-                        Recorded
+                        {t('exercisePractice.recorded')}
                       </div>
                     )}
 
@@ -672,7 +672,7 @@ export function ExercisePractice() {
           {isSlideRecorded && !isRecording && (
             <div className="mb-3 p-2 bg-green-50 rounded-lg border border-green-200 flex items-center gap-2 text-sm text-green-700">
               <CheckCircle size={16} />
-              <span>✓ Recording saved for this slide</span>
+              <span>{t('exercisePractice.recordingSaved')}</span>
               <button
                 onClick={() => handleResetRecording(currentSlide)}
                 className="ml-auto text-xs text-red-500 hover:text-red-700 transition-colors"
@@ -772,7 +772,7 @@ export function ExercisePractice() {
         <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-2xl p-3 sm:p-4 border-2 border-green-300">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <p className="text-sm font-medium text-green-800">✅ All slides recorded!</p>
+              <p className="text-sm font-medium text-green-800">{t('exercisePractice.allSlidesRecorded')}</p>
               <p className="text-xs text-green-600">{totalSlides} {t('exercisePractice.slidesRecorded', 'slides recorded')}</p>
             </div>
             <button
@@ -800,7 +800,7 @@ export function ExercisePractice() {
       {!hasSubmitted && !isSlideRecorded && !isRecording && (
         <div className="bg-gray-50 rounded-2xl p-3 sm:p-4 border border-gray-200 text-center">
           <p className="text-xs sm:text-sm text-gray-500">
-            🎤 {t('exercisePractice.recordSlide', 'Record audio for this slide')}
+            🎤 {t('exercisePractice.recordAudioForSlide', 'Record audio for this slide')}
           </p>
         </div>
       )}
@@ -808,7 +808,7 @@ export function ExercisePractice() {
       {/* Show message if all slides recorded but not submitted */}
       {!hasSubmitted && allRecorded && !isRecording && totalSlides > 0 && (
         <div className="text-center text-sm text-green-600 font-medium">
-          ✅ All slides recorded! Click the green button above to submit.
+          {t('exercisePractice.allSlidesRecordedSubmit', 'All slides recorded! Click the green button above to submit.')}
         </div>
       )}
 

@@ -1,13 +1,15 @@
 // src/app/pages/RegisterScreen.tsx
+
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Lock, User, ArrowLeft, Globe, ChevronDown, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, Globe, ChevronDown, CheckCircle, AlertCircle, Calendar, Baby } from 'lucide-react';
 import { useRegister } from '@/hooks/useAuth';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useValidationSchemas, RegisterFormValues } from '@/utils/validators';
+import { z } from 'zod';
 
 export function RegisterScreen() {
   const navigate = useNavigate();
@@ -21,16 +23,17 @@ export function RegisterScreen() {
     return savedLang.toUpperCase();
   });
   const [showLang, setShowLang] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const submitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // ✅ Use zodResolver with the schema directly - no casting needed
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid, isDirty },
     reset,
   } = useForm<RegisterFormValues>({
+    // @ts-ignore - Ignore type mismatch between Zod schema and React Hook Form
     resolver: zodResolver(schemas.registerSchema),
     mode: 'onChange',
     defaultValues: {
@@ -38,6 +41,10 @@ export function RegisterScreen() {
       password: '',
       name: '',
       role: 'parent',
+      childName: '',
+      childDateOfBirth: '',
+      childId: '',
+      avatar: '',
     },
   });
 
@@ -67,7 +74,8 @@ export function RegisterScreen() {
         password: data.password,
         name: data.name,
         role: 'parent',
-        childName: data.childName || undefined,
+        childName: data.childName,
+        childDateOfBirth: data.childDateOfBirth,
       });
       
       // Show success state
@@ -218,8 +226,8 @@ export function RegisterScreen() {
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Name Field */}
             <div className="space-y-4 mb-6">
+              {/* Parent Name Field */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                   {t('auth.register.name')} <span className="text-red-500">*</span>
@@ -309,13 +317,13 @@ export function RegisterScreen() {
                 </p>
               </div>
 
-              {/* Child Name Field (Optional) */}
+              {/* Child Name Field - Required */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                  {t('auth.register.childName')} <span className="text-xs text-muted-foreground">({t('common.optional')})</span>
+                  {t('auth.register.childName')} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <User
+                  <Baby
                     size={18}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   />
@@ -323,15 +331,51 @@ export function RegisterScreen() {
                     type="text"
                     {...register('childName')}
                     placeholder="Emma"
-                    className="w-full bg-muted rounded-xl pl-10 pr-4 py-3 md:py-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                    className={`w-full bg-muted rounded-xl pl-10 pr-4 py-3 md:py-3.5 text-sm outline-none transition-all ${
+                      errors.childName ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
+                    }`}
                     disabled={registerMutation.isPending}
+                    aria-invalid={!!errors.childName}
+                    aria-describedby={errors.childName ? 'childName-error' : undefined}
                   />
                 </div>
                 {errors.childName && (
-                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                  <p id="childName-error" className="text-xs text-red-500 mt-1 flex items-center gap-1">
                     <AlertCircle size={14} /> {errors.childName.message}
                   </p>
                 )}
+              </div>
+
+              {/* Child Date of Birth Field - Required */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                  {t('auth.register.childDateOfBirth')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <input
+                    type="date"
+                    {...register('childDateOfBirth')}
+                    className={`w-full bg-muted rounded-xl pl-10 pr-4 py-3 md:py-3.5 text-sm outline-none transition-all ${
+                      errors.childDateOfBirth ? 'border-2 border-red-400 focus:ring-red-400/30' : 'focus:ring-2 focus:ring-primary/30'
+                    }`}
+                    disabled={registerMutation.isPending}
+                    max={new Date().toISOString().split('T')[0]} // Prevent future dates
+                    aria-invalid={!!errors.childDateOfBirth}
+                    aria-describedby={errors.childDateOfBirth ? 'childDateOfBirth-error' : undefined}
+                  />
+                </div>
+                {errors.childDateOfBirth && (
+                  <p id="childDateOfBirth-error" className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                    <AlertCircle size={14} /> {errors.childDateOfBirth.message}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('auth.register.childDateOfBirthHint')}
+                </p>
               </div>
             </div>
 

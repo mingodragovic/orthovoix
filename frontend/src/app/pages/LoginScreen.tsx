@@ -1,5 +1,6 @@
 // src/app/pages/LoginScreen.tsx
-import { useState, useEffect, useMemo } from 'react';
+
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,8 +8,9 @@ import { Globe, ChevronDown, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide
 import { useLogin } from '@/hooks/useAuth';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { loginSchema, LoginFormValues } from '@/utils/validators';
+import { useValidationSchemas, LoginFormValues } from '@/utils/validators';
 import { Role } from '@/types/api.types';
+import { toast } from 'sonner';
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -16,17 +18,27 @@ export function LoginScreen() {
   const { language, setLanguage, isRTL } = useLanguage();
   const [showLang, setShowLang] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { t } = useTranslation();
   const loginMutation = useLogin();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // ✅ Use dynamic translated schema
+  const schemas = useValidationSchemas(t);
+  const loginSchema = schemas.loginSchema;
 
   const displayLang = useMemo(() => language.toUpperCase(), [language]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isSubmitting, isValid, isDirty },
     setValue,
+    getValues,
+    watch,
   } = useForm<LoginFormValues>({
+    // @ts-ignore - Type mismatch between Zod schema and React Hook Form
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
     defaultValues: {
@@ -34,6 +46,34 @@ export function LoginScreen() {
       password: '',
     },
   });
+
+  // Watch form values to clear error when user types
+  const emailValue = watch('email');
+  const passwordValue = watch('password');
+
+  // Clear error when user starts typing
+  useEffect(() => {
+    if (loginError) {
+      setLoginError(null);
+    }
+  }, [emailValue, passwordValue]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setShowLang(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Mock credentials for demo
   const mockCredentials = {
@@ -45,27 +85,119 @@ export function LoginScreen() {
     setRole(role);
     setValue('email', mockCredentials[role].email);
     setValue('password', mockCredentials[role].password);
+    setLoginError(null);
   };
 
   const handleLanguageChange = (locale: string) => {
     const normalizedLocale = locale.toLowerCase();
+    // Save current form values before language change
+    const currentEmail = getValues('email');
+    const currentPassword = getValues('password');
+    
     setLanguage(normalizedLocale);
     setShowLang(false);
+    
+    // Restore form values after language change
+    setTimeout(() => {
+      setValue('email', currentEmail);
+      setValue('password', currentPassword);
+    }, 0);
+  };
+
+  /**
+   * Get user-friendly error message based on error type
+   */
+  const getErrorMessage = (error: any): string => {
+    // Check if error has a response from the server
+    if (error?.response?.data) {
+      const data = error.response.data;
+      
+      // Check for specific error messages
+      if (data.message) {
+        const message = data.message;
+        
+        // Map server error messages to user-friendly translations
+        if (typeof message === 'string') {
+          // Invalid credentials
+          if (message.toLowerCase().includes('invalid') || 
+              message.toLowerCase().includes('credentials') ||
+              message.toLowerCase().includes('password') ||
+              message.toLowerCase().includes('email')) {
+            return t('auth.login.error');
+          }
+          
+          // Account deactivated
+          if (message.toLowerCase().includes('deactivated') || 
+              message.toLowerCase().includes('disabled')) {
+            return t('auth.login.accountDeactivated');
+          }
+          
+          // Account not found
+          if (message.toLowerCase().includes('not found') || 
+              message.toLowerCase().includes('does not exist')) {
+            return t('auth.login.error');
+          }
+        }
+        
+        // If it's an array of messages
+        if (Array.isArray(message)) {
+          const firstMessage = message[0];
+          if (typeof firstMessage === 'string') {
+            if (firstMessage.toLowerCase().includes('invalid') || 
+                firstMessage.toLowerCase().includes('credentials')) {
+              return t('auth.login.error');
+            }
+            if (firstMessage.toLowerCase().includes('deactivated')) {
+              return t('auth.login.accountDeactivated');
+            }
+          }
+        }
+      }
+      
+      // Check status codes
+      if (data.statusCode) {
+        switch (data.statusCode) {
+          case 401:
+            return t('auth.login.error');
+          case 403:
+            return t('auth.login.accountDeactivated');
+          case 404:
+            return t('auth.login.error');
+          default:
+            break;
+        }
+      }
+    }
+    
+    // Check if it's a network error
+    if (error?.message?.toLowerCase().includes('network') || 
+        error?.code === 'ERR_NETWORK') {
+      return t('common.networkError', 'Network error. Please check your connection.');
+    }
+    
+    // Fallback error message
+    return t('auth.login.error');
   };
 
   const onSubmit = async (data: LoginFormValues) => {
-    await loginMutation.mutateAsync({
-      email: data.email,
-      password: data.password,
-    });
+    // Clear previous errors
+    setLoginError(null);
+    
+    try {
+      await loginMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
+      // On success, navigation happens in the mutation
+    } catch (error: any) {
+      // Get user-friendly error message
+      const errorMessage = getErrorMessage(error);
+      setLoginError(errorMessage);
+      
+      // Show toast for better UX
+      toast.error(errorMessage);
+    }
   };
-
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = () => setShowLang(false);
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
 
   return (
     <div
@@ -102,6 +234,7 @@ export function LoginScreen() {
           {/* Language selector */}
           <div className="flex justify-end mb-4 relative">
             <button
+              ref={buttonRef}
               onClick={(e) => {
                 e.stopPropagation();
                 setShowLang(!showLang);
@@ -112,8 +245,15 @@ export function LoginScreen() {
               {displayLang}
               <ChevronDown size={12} />
             </button>
+            
+            {/* Dropdown - positioned dynamically based on RTL */}
             {showLang && (
-              <div className="absolute top-10 right-0 bg-white border border-border rounded-xl shadow-lg z-10 overflow-hidden">
+              <div 
+                ref={dropdownRef}
+                className={`absolute top-10 ${
+                  isRTL ? 'left-0' : 'right-0'
+                } bg-white border border-border rounded-xl shadow-lg z-10 overflow-hidden min-w-[100px]`}
+              >
                 {['FR', 'EN', 'AR'].map((l) => (
                   <button
                     key={l}
@@ -148,6 +288,14 @@ export function LoginScreen() {
               </button>
             ))}
           </div>
+
+          {/* Global error message */}
+          {loginError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
+              <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-600">{loginError}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Email Field */}
@@ -236,13 +384,13 @@ export function LoginScreen() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!isValid || isSubmitting || loginMutation.isPending}
+              disabled={!isValid || !isDirty || isSubmitting || loginMutation.isPending}
               className="w-full py-3.5 md:py-4 rounded-2xl text-white font-semibold text-sm md:text-base transition-all duration-150 active:scale-95 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: !isValid || loginMutation.isPending
+                background: !isValid || !isDirty || loginMutation.isPending
                   ? '#CBD5E0'
                   : 'linear-gradient(135deg, #4A90D9, #6EC6A0)',
-                boxShadow: !isValid || loginMutation.isPending
+                boxShadow: !isValid || !isDirty || loginMutation.isPending
                   ? 'none'
                   : '0 4px 16px rgba(74,144,217,0.4)',
                 fontFamily: 'Poppins, sans-serif',
@@ -258,14 +406,7 @@ export function LoginScreen() {
               )}
             </button>
 
-            <div className="mt-4 text-center">
-              <p className="text-xs text-muted-foreground">
-                {role === 'orthophoniste' ? '👩‍⚕️' : '👨‍👧'}
-                <span className="ml-1">
-                  {t(`auth.login.role.${role}`)} {t('common.loading')?.toLowerCase()}
-                </span>
-              </p>
-            </div>
+       
           </form>
         </div>
       </div>

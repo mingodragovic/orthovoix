@@ -1,4 +1,5 @@
 // src/modules/users/dto/create-user.dto.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
@@ -9,9 +10,11 @@ import {
   IsOptional,
   IsNotEmpty,
   Matches,
+  IsUUID,
+  IsDate,
 } from 'class-validator';
 import { UserRole } from '../interfaces/user-roles.enum';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -48,14 +51,20 @@ export class CreateUserDto {
   @IsString()
   avatarKey?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, example: 'Emma' })
   @IsOptional()
   @IsString()
   childName?: string;
 
+  @ApiProperty({ required: false, example: '2018-05-15' })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  childDateOfBirth?: Date;
+
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   childId?: string;
 
   @ApiProperty({ required: false })

@@ -1,4 +1,5 @@
 // src/modules/dashboard/dashboard.service.ts
+
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan, LessThan } from 'typeorm';
@@ -89,7 +90,7 @@ export class DashboardService {
       ? Math.round((completedAssignments / totalAssignments) * 100)
       : 0;
 
-    // 6. Recent Activity (last 10) - FIXED RELATIONS SYNTAX
+    // 6. Recent Activity (last 10)
     const recentProgress = await this.progressRepository.find({
       relations: { patient: true },
       order: { createdAt: 'DESC' },
@@ -164,6 +165,7 @@ export class DashboardService {
 
   /**
    * Get Parent Dashboard Data
+   * FIXED: Always returns complete stats object with default values
    */
   async getParentDashboard(parentId: string): Promise<any> {
     const user = await this.userRepository.findOne({ where: { id: parentId } });
@@ -178,10 +180,20 @@ export class DashboardService {
       where: { parentId: parentId },
     });
 
+    // ✅ FIX: If no child exists, return complete default state
     if (!child) {
       return {
         child: null,
-        stats: null,
+        stats: {
+          totalExercises: 0,
+          completedExercises: 0,
+          inProgressExercises: 0,
+          overdueExercises: 0,
+          completionRate: 0,
+          averageScore: 0,
+          latestScore: 0,
+          upcomingAppointments: 0,
+        },
         progressTrend: [],
         recentExercises: [],
         upcomingAppointments: [],
@@ -190,7 +202,7 @@ export class DashboardService {
       };
     }
 
-    // 2. Get Assignments - FIXED RELATIONS SYNTAX
+    // 2. Get Assignments
     const assignments = await this.patientExerciseRepository.find({
       where: { patientId: child.id },
       relations: { exercise: true },
@@ -231,7 +243,7 @@ export class DashboardService {
     const progressTrend = progressRecords
       .reverse()
       .map(p => ({
-        date: p.recordDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        date: p.recordDate ? p.recordDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         score: p.scores?.overallScore || 0,
         category: p.type || 'overall',
       }));

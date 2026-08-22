@@ -383,7 +383,6 @@ export function OrthoDashboard() {
             { icon: "👤", label: t('patients.add'), color: "#EBF4FF", path: "/patients" },
             { icon: "📝", label: t('exercises.add'), color: "#F0FFF4", path: "/exercise-create" },
             { icon: "📋", label: t('sidebar.patients'), color: "#FFFAF0", path: "/patients" },
-            { icon: "📊", label: t('sidebar.reports'), color: "#FFF5F5", path: "/ortho-progress" },
           ].map((a) => (
             <button
               key={a.label}

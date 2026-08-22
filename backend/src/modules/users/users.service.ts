@@ -1,4 +1,5 @@
 // src/modules/users/users.service.ts
+
 import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MESSAGES } from '../../constants/messages';
 import { comparePassword, hashPassword, sanitizeUser } from '../../utils/helpers';
+import { UserRole } from './interfaces/user-roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -90,6 +92,24 @@ export class UsersService {
   }
 
   /**
+   * ✅ Find users by role
+   */
+  async findByRole(role: UserRole): Promise<User[]> {
+    return this.userRepository.find({
+      where: { role, isActive: true },
+    });
+  }
+
+  /**
+   * ✅ Find users by role (including inactive)
+   */
+  async findByRoleIncludingInactive(role: UserRole): Promise<User[]> {
+    return this.userRepository.find({
+      where: { role },
+    });
+  }
+
+  /**
    * Update a user
    */
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -142,15 +162,14 @@ export class UsersService {
     });
   }
 
-/**
- * Update a user's password - FIXED VERSION
- */
-
-async updatePassword(id: string, newPassword: string): Promise<void> {
+  /**
+   * Update a user's password
+   */
+  async updatePassword(id: string, newPassword: string): Promise<void> {
     // Get the user
     const user = await this.findById(id);
     
-    // ✅ Set the password to the NEW plain text
+    // Set the password to the NEW plain text
     // The entity hook will hash it automatically
     user.password = newPassword;
     
@@ -159,24 +178,11 @@ async updatePassword(id: string, newPassword: string): Promise<void> {
     
     // Clear reset tokens
     await this.userRepository.update(id, {
-        resetPasswordToken: undefined,
-        resetPasswordExpires: undefined,
+      resetPasswordToken: undefined,
+      resetPasswordExpires: undefined,
     });
-}
+  }
 
-/**
- * Update a user's password (Alternative using entity's @BeforeUpdate)
- * This relies on the entity's @BeforeUpdate hook
- */
-async updatePasswordWithHook(id: string, newPassword: string): Promise<void> {
-    // This saves the plain text and relies on @BeforeUpdate to hash it
-    // Make sure your entity has the @BeforeUpdate hook!
-    await this.userRepository.update(id, {
-        password: newPassword,
-        resetPasswordToken: undefined,
-        resetPasswordExpires: undefined,
-    });
-}
   /**
    * Update last login timestamp
    */

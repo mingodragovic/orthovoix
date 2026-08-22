@@ -9,7 +9,7 @@ import { patients } from "../../data/mockData";
 
 export function ExerciseCreate() {
   const navigate = useNavigate();
-const showToast = useToast();
+  const showToast = useToast();
   const { t } = useTranslation();
   
   const [step, setStep] = useState(1);
@@ -23,20 +23,28 @@ const showToast = useToast();
   const canNext1 = titre.trim() && mot.trim();
 
   const handleCreate = () => {
-    showToast.success("Exercice créé et assigné à 3 patients ✅");
+    showToast.success(t('exercises.create.success', "Exercice créé et assigné à 3 patients ✅"));
     navigate("/ortho-dashboard");
   };
+
+  const stepLabels = [
+    t('exerciseCreate.contentStep', "📝 Contenu"),
+    t('exerciseCreate.mediaStep', "🎵 Médias"),
+    t('exerciseCreate.assignmentStep', "👥 Attribution"),
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <button onClick={() => navigate("/ortho-dashboard")} className="flex items-center gap-2 text-primary hover:bg-primary/10 px-3 py-2 rounded-xl transition-colors">
         <ArrowLeft size={18} /> 
-        <span className="font-medium">Retour</span>
+        <span className="font-medium">{t('common.back', 'Retour')}</span>
       </button>
 
       <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-border/50">
-        <h1 className="text-2xl font-bold mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Nouvel exercice</h1>
+        <h1 className="text-2xl font-bold mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>
+          {t('exerciseCreate.title', "Nouvel exercice")}
+        </h1>
 
         {/* Steps */}
         <div className="flex items-center gap-2 mb-8">
@@ -53,7 +61,7 @@ const showToast = useToast();
             </div>
           ))}
           <span className="text-sm text-muted-foreground ml-2">
-            {step === 1 ? "📝 Contenu" : step === 2 ? "🎵 Médias" : "👥 Attribution"}
+            {stepLabels[step - 1]}
           </span>
         </div>
 
@@ -62,29 +70,35 @@ const showToast = useToast();
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Titre de l'exercice *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                  {t('exerciseCreate.exerciseTitle', "Titre de l'exercice *")}
+                </label>
                 <input 
                   value={titre} 
                   onChange={(e) => setTitre(e.target.value)} 
-                  placeholder="Ex: Son SH - Niveau 1"
+                  placeholder={t('exerciseCreate.exerciseTitlePlaceholder', "Ex: Son SH - Niveau 1")}
                   className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all" 
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Mot / Phrase cible *</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                  {t('exerciseCreate.targetWord', "Mot / Phrase cible *")}
+                </label>
                 <input 
                   value={mot} 
                   onChange={(e) => setMot(e.target.value)} 
-                  placeholder="Ex: chapeau, chat, cheval"
+                  placeholder={t('exerciseCreate.targetWordPlaceholder', "Ex: chapeau, chat, cheval")}
                   className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all" 
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Instructions pour le parent</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                  {t('exerciseCreate.instructionsLabel', "Instructions pour le parent")}
+                </label>
                 <textarea 
                   value={instructions} 
                   onChange={(e) => setInstructions(e.target.value)}
-                  placeholder="Expliquez comment réaliser l'exercice à la maison..."
+                  placeholder={t('exerciseCreate.instructionsPlaceholder', "Expliquez comment réaliser l'exercice à la maison...")}
                   rows={4}
                   className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none" 
                 />
@@ -95,7 +109,9 @@ const showToast = useToast();
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">Image illustrative</label>
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  {t('exerciseCreate.illustrativeImage', "Image illustrative")}
+                </label>
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
@@ -105,15 +121,17 @@ const showToast = useToast();
                 >
                   <Upload size={32} className="text-muted-foreground" />
                   <p className="text-sm text-muted-foreground text-center">
-                    Glisser-déposer une image
+                    {t('exerciseCreate.dragDropImage', "Glisser-déposer une image")}
                     <br />
-                    <span className="text-primary text-xs">ou cliquer pour parcourir</span>
+                    <span className="text-primary text-xs">{t('exerciseCreate.clickToBrowse', "ou cliquer pour parcourir")}</span>
                   </p>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">Audio de démonstration</label>
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                  {t('exerciseCreate.demoAudio', "Audio de démonstration")}
+                </label>
                 <div className="flex gap-3 flex-wrap">
                   <button
                     onClick={() => setRecording(!recording)}
@@ -124,17 +142,19 @@ const showToast = useToast();
                     }`}
                   >
                     <Mic size={18} />
-                    {recording ? "Arrêter" : "Enregistrer"}
+                    {recording ? t('common.done', "Arrêter") : t('exerciseCreate.record', "Enregistrer")}
                   </button>
                   <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium bg-muted border-2 border-border hover:bg-muted/70 transition-all active:scale-95">
                     <Upload size={18} className="text-muted-foreground" />
-                    Importer
+                    {t('exerciseCreate.import', "Importer")}
                   </button>
                 </div>
                 {recording && (
                   <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-red-50 rounded-xl border border-red-200">
                     <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-                    <span className="text-xs text-red-600 font-medium">Enregistrement en cours...</span>
+                    <span className="text-xs text-red-600 font-medium">
+                      {t('exerciseCreate.recordingInProgress', "Enregistrement en cours...")}
+                    </span>
                   </div>
                 )}
               </div>
@@ -143,8 +163,8 @@ const showToast = useToast();
 
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Assigner à des patients</h3>
-              <p className="text-xs text-muted-foreground">Sélectionnez les patients qui recevront cet exercice</p>
+              <h3 className="text-sm font-semibold">{t('exerciseCreate.assignToPatients', "Assigner à des patients")}</h3>
+              <p className="text-xs text-muted-foreground">{t('exerciseCreate.selectPatients', "Sélectionnez les patients qui recevront cet exercice")}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {patients.filter((p) => p.statut === "Actif").map((p) => (
                   <button
@@ -159,7 +179,7 @@ const showToast = useToast();
                     <Avatar initials={p.avatar} size={40} />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{p.nom}</p>
-                      <p className="text-xs text-muted-foreground">{p.age} ans</p>
+                      <p className="text-xs text-muted-foreground">{p.age} {t('patients.age', 'ans')}</p>
                     </div>
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
                       selected.includes(p.id) ? "bg-primary" : "bg-muted"
@@ -180,7 +200,7 @@ const showToast = useToast();
               onClick={() => setStep(step - 1)} 
               className="px-6 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-muted transition-colors"
             >
-              ← Retour
+              {t('exerciseCreate.back', "← Retour")}
             </button>
           )}
           <div className="flex-1" />
@@ -190,7 +210,7 @@ const showToast = useToast();
               disabled={step === 1 && !canNext1}
               className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Suivant <ChevronRight size={16} className="inline ml-1" />
+              {t('exerciseCreate.next', "Suivant")} <ChevronRight size={16} className="inline ml-1" />
             </button>
           ) : (
             <button 
@@ -198,7 +218,7 @@ const showToast = useToast();
               disabled={selected.length === 0}
               className="px-6 py-2.5 rounded-xl bg-green-600 text-white text-sm font-medium hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ✨ Créer et assigner
+              {t('exerciseCreate.createAndAssign', "✨ Créer et assigner")}
             </button>
           )}
         </div>

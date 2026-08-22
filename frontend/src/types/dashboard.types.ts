@@ -54,36 +54,36 @@ export interface ParentDashboardResponse {
       status: string;
       avatar: string | null;
     };
-    stats: {
-      totalExercises: number;
-      completedExercises: number;
-      inProgressExercises: number;
-      overdueExercises: number;
-      completionRate: number;
-      averageScore: number;
-      latestScore: number;
-      upcomingAppointments: number;
+    stats?: {
+      totalExercises?: number;
+      completedExercises?: number;
+      inProgressExercises?: number;
+      overdueExercises?: number;
+      completionRate?: number;
+      averageScore?: number;
+      latestScore?: number;
+      upcomingAppointments?: number;
     };
-    progressTrend: Array<{
+    progressTrend?: Array<{
       date: string;
       score: number;
       category: string;
     }>;
-    recentExercises: Array<{
+    recentExercises?: Array<{
       id: string;
       title: string;
       status: string;
       score: number | null;
       dueDate: string;
     }>;
-    upcomingAppointments: Array<{
+    upcomingAppointments?: Array<{
       id: string;
       dateTime: string;
       location: string | null;
       isVirtual: boolean;
       type: string;
     }>;
-    recentNotifications: Array<{
+    recentNotifications?: Array<{
       id: string;
       title: string;
       message: string;
@@ -91,6 +91,6 @@ export interface ParentDashboardResponse {
       read: boolean;
       actionUrl: string | null;
     }>;
-    unreadNotifications: number;
+    unreadNotifications?: number;
   };
 }

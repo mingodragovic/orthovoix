@@ -25,23 +25,24 @@ export class PatientsService {
   /**
    * Create a new patient
    */
-  async create(createPatientDto: CreatePatientDto, currentUserId: string): Promise<Patient> {
-    // Verify parent exists
-    await this.usersService.findById(createPatientDto.parentId);
+async create(createPatientDto: CreatePatientDto, currentUserId: string): Promise<Patient> {
+  // Verify parent exists
+  await this.usersService.findById(createPatientDto.parentId);
 
-    // Verify orthophoniste exists
+  // ✅ Only verify orthophoniste if provided
+  if (createPatientDto.orthophonisteId) {
     await this.usersService.findById(createPatientDto.orthophonisteId);
-
-    // Check if the current user is an orthophoniste
-    const currentUser = await this.usersService.findById(currentUserId);
-    if (currentUser.role !== UserRole.ORTHOPHONISTE) {
-      throw new ForbiddenException('Only orthophonistes can create patients');
-    }
-
-    const patient = this.patientRepository.create(createPatientDto);
-    return this.patientRepository.save(patient);
   }
 
+  // Check if the current user is an orthophoniste
+  const currentUser = await this.usersService.findById(currentUserId);
+  if (currentUser.role !== UserRole.ORTHOPHONISTE) {
+    throw new ForbiddenException('Only orthophonistes can create patients');
+  }
+
+  const patient = this.patientRepository.create(createPatientDto);
+  return this.patientRepository.save(patient);
+}
   /**
    * Get all patients (Orthophoniste only)
    */

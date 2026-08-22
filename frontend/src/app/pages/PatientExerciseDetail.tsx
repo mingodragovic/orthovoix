@@ -22,7 +22,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr, enUS, arSA } from 'date-fns/locale';
 import { BaseModal } from '../components/ui/BaseModal';
-import { PatientExerciseStatus } from '@/types/patient-exercise.types';
+import { PatientExerciseStatus, PriorityLevel } from '@/types/patient-exercise.types';
 import { useToast } from '@/hooks/useToast';
 
 export function PatientExerciseDetail() {
@@ -84,6 +84,24 @@ export function PatientExerciseDetail() {
       case 'overdue': return <AlertCircle className="w-5 h-5 text-red-600" />;
       case 'cancelled': return <XCircle className="w-5 h-5 text-gray-600" />;
       default: return null;
+    }
+  };
+
+  const getPriorityLabel = (priority: PriorityLevel) => {
+    switch(priority) {
+      case 'low': return t('patientExercises.priority.low');
+      case 'medium': return t('patientExercises.priority.medium');
+      case 'high': return t('patientExercises.priority.high');
+      default: return priority;
+    }
+  };
+
+  const getPriorityColor = (priority: PriorityLevel) => {
+    switch(priority) {
+      case 'high': return 'bg-red-100 text-red-700 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -208,6 +226,15 @@ export function PatientExerciseDetail() {
                   <div>
                     <p className="text-xs text-gray-500">{t('exercises.category')}</p>
                     <p className="text-sm">{t(`exercises.category.${assignment.exerciseCategory}`)}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Activity className="w-4 h-4 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-500">{t('patientExercises.priority')}</p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(assignment.priority)}`}>
+                      {getPriorityLabel(assignment.priority)}
+                    </span>
                   </div>
                 </div>
               </div>

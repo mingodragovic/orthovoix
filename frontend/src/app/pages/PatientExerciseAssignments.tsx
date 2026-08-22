@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAllAssignments } from '@/hooks/usePatientExercises';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Column, DataTable } from '../components/ui/DataTable';
-import { PatientExercise, PatientExerciseStatus } from '@/types/patient-exercise.types';
+import { PatientExercise, PatientExerciseStatus, PriorityLevel } from '@/types/patient-exercise.types';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { Pagination } from '../components/ui/pagination';
 import { Eye, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
@@ -74,12 +74,21 @@ export function PatientExerciseAssignments() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: PriorityLevel) => {
     switch(priority) {
       case 'high': return 'bg-red-100 text-red-700';
       case 'medium': return 'bg-yellow-100 text-yellow-700';
       case 'low': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getPriorityLabel = (priority: PriorityLevel) => {
+    switch(priority) {
+      case 'high': return t('patientExercises.priority.high');
+      case 'medium': return t('patientExercises.priority.medium');
+      case 'low': return t('patientExercises.priority.low');
+      default: return priority;
     }
   };
 
@@ -120,7 +129,7 @@ export function PatientExerciseAssignments() {
       sortable: true,
       render: (item) => (
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
-          {item.priority}
+          {getPriorityLabel(item.priority)}
         </span>
       ),
     },
@@ -144,7 +153,7 @@ export function PatientExerciseAssignments() {
         </span>
       ),
     },
-  ], [t, getStatusColor, getStatusLabel, getStatusIcon, getPriorityColor, formatDate]);
+  ], [t, getStatusColor, getStatusLabel, getStatusIcon, getPriorityColor, getPriorityLabel, formatDate]);
 
   const assignments = data?.data?.items || [];
   const pagination = data?.data || {

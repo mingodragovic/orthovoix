@@ -97,6 +97,15 @@ export function PatientDetail() {
     }
   };
 
+  const getStatusLabelPatient = (status: string) => {
+    switch(status) {
+      case 'active': return t('patients.status.active');
+      case 'inactive': return t('patients.status.inactive');
+      case 'discharged': return t('patients.status.discharged');
+      default: return status;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto py-8">
@@ -224,7 +233,7 @@ export function PatientDetail() {
                     <div>
                       <p className="text-xs text-gray-500">{t('patients.status')}</p>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColorPatient(patient.status)}`}>
-                        {patient.status}
+                        {getStatusLabelPatient(patient.status)}
                       </span>
                     </div>
                   </div>

@@ -1,3 +1,5 @@
+// src/modules/auth/auth.service.ts
+
 import {
   Injectable,
   UnauthorizedException,
@@ -8,6 +10,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
+import { PatientsService } from '../patients/patients.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -15,14 +18,18 @@ import { MESSAGES } from '../../constants/messages';
 import { comparePassword, generateRandomString, hashPassword } from '../../utils/helpers';
 import { User } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
+import { CreatePatientDto } from '../patients/dto/create-patient.dto';
+import { PatientStatus, Gender } from '../patients/interfaces/patient-status.enum';
+import { UserRole } from '../users/interfaces/user-roles.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private patientsService: PatientsService,
     private jwtService: JwtService,
     private configService: ConfigService,
-     private emailService: EmailService, 
+    private emailService: EmailService,
   ) {}
 
   /**
@@ -78,7 +85,7 @@ export class AuthService {
   }
 
   /**
-   * Register a new user (parent)
+   * Register a new user (parent) with optional child creation
    */
   async register(createUserDto: CreateUserDto) {
     // Check if user already exists
@@ -88,7 +95,52 @@ export class AuthService {
       throw new ConflictException(MESSAGES.EMAIL_ALREADY_EXISTS);
     }
 
+    // Create the parent user
     const user = await this.usersService.create(createUserDto);
+
+    // If childName is provided, create a patient record
+    if (createUserDto.childName) {
+      try {
+        // Find an orthophoniste to assign the child to
+        const orthophonistes = await this.usersService.findByRole(UserRole.ORTHOPHONISTE);
+        
+        if (orthophonistes.length > 0) {
+          // Use the first orthophoniste
+          const orthophonisteId = orthophonistes[0].id;
+          
+          // ✅ Use the provided date of birth or default to today
+          const dateOfBirth = createUserDto.childDateOfBirth || new Date();
+          
+          // Create patient with all required fields
+          const patientData: CreatePatientDto = {
+            firstName: createUserDto.childName,
+            lastName: '', // No last name provided
+            dateOfBirth: dateOfBirth,
+            gender: Gender.OTHER,
+            parentId: user.id,
+            orthophonisteId: orthophonisteId,
+            status: PatientStatus.ACTIVE,
+          };
+          
+          const patient = await this.patientsService.create(patientData, orthophonisteId);
+          
+          // Update the user with the childId
+          await this.usersService.update(user.id, {
+            childId: patient.id,
+          });
+          
+          // Update the user object with the childId for the response
+          user.childId = patient.id;
+        } else {
+          // No orthophoniste found, just store the childName
+          console.warn('No orthophoniste available to assign child to');
+        }
+      } catch (error) {
+        // Log the error but don't fail the registration
+        console.error('Failed to create patient for parent:', error);
+        // You might want to notify an admin here
+      }
+    }
 
     return {
       user: this.usersService.sanitizeUser(user),
@@ -227,7 +279,6 @@ export class AuthService {
 
     return { message: 'Password reset successfully' };
   }
-
 
   /**
    * Reset password

@@ -37,6 +37,7 @@ export interface RegisterRequest {
   role: 'parent';
   avatar?: string;
   childName?: string;
+  childDateOfBirth?: string
   childId?: string;
   specialization?: string;
   licenseNumber?: string;

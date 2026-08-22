@@ -1,3 +1,5 @@
+// src/modules/patients/dto/create-patient.dto.ts
+
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
@@ -58,10 +60,10 @@ export class CreatePatientDto {
   @IsNotEmpty()
   parentId!: string;
 
-  @ApiProperty({ example: '84cb29f4-0cf7-4182-80f0-5d9f56fe6578' })
+  @ApiProperty({ required: false, example: '84cb29f4-0cf7-4182-80f0-5d9f56fe6578' })
+  @IsOptional()
   @IsUUID()
-  @IsNotEmpty()
-  orthophonisteId!: string;
+  orthophonisteId?: string; // ✅ Make optional
 
   @ApiProperty({ required: false, example: 'Speech delay' })
   @IsOptional()

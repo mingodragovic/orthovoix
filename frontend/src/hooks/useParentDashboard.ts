@@ -17,15 +17,13 @@ export async function getParentDashboard(): Promise<ParentDashboardResponse['dat
   return response.data.data;
 }
 
-export function useParentDashboard() {
-  const { user } = useAuth();
-  const isParent = user?.role === 'parent';
-  
+// ✅ Updated to accept a boolean parameter
+export function useParentDashboard(enabled: boolean = true) {
   return useQuery({
     queryKey: dashboardKeys.parent,
     queryFn: getParentDashboard,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    enabled: isParent, // ✅ Now uses the boolean from useAuth
+    enabled, // ✅ Use the passed parameter
   });
 }
